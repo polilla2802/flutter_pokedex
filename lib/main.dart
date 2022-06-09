@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/app/configuration/environment.dart';
+import 'package:flutter_pokedex/app/presentation/login_screen.dart';
 
 void main() {
   const key = "main prod";
@@ -22,10 +23,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.red,
+        primarySwatch: Colors.red,
+        backgroundColor: Colors.red,
+        scaffoldBackgroundColor: Colors.white,
       ),
-      // Implement LoginScreen here
-      // home: LoginScreen(),
+      home: LoginScreen(),
     );
   }
 }
