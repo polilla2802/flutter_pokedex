@@ -96,4 +96,13 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    print('Dispose invoked');
+    _loginController.dispose();
+    if (_myFocus != null) return;
+    _myFocus!.dispose();
+    super.dispose();
+  }
 }

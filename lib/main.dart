@@ -7,7 +7,7 @@ void main() {
   print("[$key] invoked");
 
   BuildEnvironment.init(
-      apiBaseAddress: "https://ecsdevapi.nextline.mx",
+      apiBaseAddress: "https://pokeapi.co/api/v2",
       env: Environment.production,
       secretKey: "",
       bearer: "");
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         backgroundColor: Colors.red,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: LoginScreen(),
+      home: const LoginScreen(),
     );
   }
 }
