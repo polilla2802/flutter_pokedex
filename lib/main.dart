@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/app/configuration/environment.dart';
-import 'package:flutter_pokedex/app/presentation/login_screen.dart';
+import 'package:flutter_pokedex/app/presentation/screens/login_screen.dart';
 
 void main() {
   const key = "main prod";
