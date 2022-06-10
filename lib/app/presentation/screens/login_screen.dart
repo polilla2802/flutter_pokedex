@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/app/presentation/components/form/input.dart';
 import 'package:flutter_pokedex/app/presentation/screens/pokedex_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String loginScreenKey = "/login_screen";
@@ -35,16 +36,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _afterBuild() async {}
 
+  Future<void> _setUser(String userName) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var done = await prefs.setString("UserName", _userName);
+
+    if (done) print('[$_key] UserName saved to $_userName');
+  }
+
   Future<void> _login(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
+      _setUser(_userName);
+
       await Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) => PokedexScreen(
-                  userName: _userName,
-                )),
+        MaterialPageRoute(builder: (context) => PokedexScreen()),
       );
     }
   }
@@ -98,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    print('Dispose invoked');
+    print('$_key Dispose invoked');
     _loginController.dispose();
     if (_myFocus != null) return;
     _myFocus!.dispose();

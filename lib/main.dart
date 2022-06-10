@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/app/configuration/environment.dart';
-import 'package:flutter_pokedex/app/presentation/screens/login_screen.dart';
+import 'package:flutter_pokedex/app/presentation/screens/splash_screen.dart';
 
 void main() {
   const key = "main prod";
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         backgroundColor: Colors.red,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: const LoginScreen(),
+      home: SplashScreen(),
     );
   }
 }

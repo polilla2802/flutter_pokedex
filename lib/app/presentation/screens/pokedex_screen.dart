@@ -6,22 +6,21 @@ import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_card.d
 import 'package:flutter_pokedex/app/presentation/components/snackbar/custom_snackbar.dart';
 import 'package:flutter_pokedex/app/presentation/screens/login_screen.dart';
 import 'package:flutter_pokedex/app/repos/pokedex_repo.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PokedexScreen extends StatefulWidget {
   static const String pokedexScreenKey = "/pokedex_screen";
-  final String? userName;
 
-  const PokedexScreen({Key? key, this.userName}) : super(key: key);
+  const PokedexScreen({Key? key}) : super(key: key);
 
   @override
-  State<PokedexScreen> createState() =>
-      _PokedexScreenState(pokedexScreenKey, userName);
+  State<PokedexScreen> createState() => _PokedexScreenState(pokedexScreenKey);
 }
 
 class _PokedexScreenState extends State<PokedexScreen> {
   String? _key;
   late PokedexRepo _pokedexRepo;
-  late String? _userName;
+  late String _userName = "";
   late CustomSnackbar _customSnackBar;
   final List<Pokemon> _pokemons = [
     Pokemon(
@@ -64,10 +63,9 @@ class _PokedexScreenState extends State<PokedexScreen> {
         6,
         "fire")
   ];
-  _PokedexScreenState(String pokedexScreenKey, String? userName) {
+  _PokedexScreenState(String pokedexScreenKey) {
     _key = pokedexScreenKey;
     _pokedexRepo = PokedexRepo();
-    _userName = userName;
     _customSnackBar = CustomSnackbar();
   }
 
@@ -79,7 +77,16 @@ class _PokedexScreenState extends State<PokedexScreen> {
         .addPostFrameCallback((_) async => await _afterBuild());
   }
 
-  Future<void> _afterBuild() async {}
+  Future<void> _getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _userName = prefs.getString("UserName")!;
+    print("_userName $_userName");
+    setState(() {});
+  }
+
+  Future<void> _afterBuild() async {
+    _getUser();
+  }
 
   Future<void> _postTask() async {
     //TODO: implement pokemon details screen
@@ -94,10 +101,13 @@ class _PokedexScreenState extends State<PokedexScreen> {
   }
 
   Future<void> _logOut() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-    );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool done = await prefs.clear();
+    if (done) print("prefs cleared");
+
+    await Navigator.of(context).pushReplacement(MaterialPageRoute(
+        settings: const RouteSettings(name: LoginScreen.loginScreenKey),
+        builder: (context) => LoginScreen()));
   }
 
   Future<void> _getPokemonById({int? pokemonId}) async {
@@ -115,8 +125,8 @@ class _PokedexScreenState extends State<PokedexScreen> {
             child: Scaffold(
                 appBar: AppBar(
                   leading: Container(),
-                  title: const Text(
-                    "Pokedex",
+                  title: Text(
+                    _userName,
                     textAlign: TextAlign.center,
                   ),
                   actions: [
@@ -183,7 +193,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
   Widget _buildPokedex() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
-      children: _pokemons!
+      children: _pokemons
           .asMap()
           .map((i, item) => MapEntry(
                 i,
@@ -225,7 +235,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
 
   @override
   void dispose() {
-    print('Dispose invoked');
+    print('$_key Dispose invoked');
     super.dispose();
   }
 }
