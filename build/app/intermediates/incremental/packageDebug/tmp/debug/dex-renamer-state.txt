@@ -1,4 +1,0 @@
-#Thu Jun 09 16:33:10 EST 2022
-base.0=/Users/eduardohidalgo/Documents/flutter_pokedex/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
-renamed.0=classes.dex
-path.0=classes.dex
