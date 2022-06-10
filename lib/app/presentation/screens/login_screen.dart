@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/app/presentation/components/form/input.dart';
+import 'package:flutter_pokedex/app/presentation/screens/pokedex_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String loginScreenKey = "/login_screen";
@@ -38,15 +39,13 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      //TODO: implement PokedexScreen here
-
-      // await Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //       builder: (context) => PokedexScreen(
-      //             userName: _userName,
-      //           )),
-      // );
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => PokedexScreen(
+                  userName: _userName,
+                )),
+      );
     }
   }
 
