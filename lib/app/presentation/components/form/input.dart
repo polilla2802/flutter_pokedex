@@ -18,6 +18,7 @@ class Input extends StatelessWidget {
       this.onChanged,
       this.multiline = false,
       this.color,
+      this.backgroundColor,
       this.controller})
       : super(key: key);
 
@@ -36,6 +37,7 @@ class Input extends StatelessWidget {
   final bool multiline;
   final TextEditingController? controller;
   final Color? color;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -51,15 +53,22 @@ class Input extends StatelessWidget {
       obscureText: obscureText,
       focusNode: focusNode,
       onFieldSubmitted: onFieldSubmitted,
+      style: TextStyle(color: Colors.white, fontSize: 18),
       decoration: InputDecoration(
         alignLabelWithHint: true,
         labelText: labelText,
-        labelStyle: TextStyle(overflow: TextOverflow.ellipsis, color: color),
+        labelStyle: TextStyle(
+            overflow: TextOverflow.ellipsis,
+            color: focusNode!.hasFocus ? Colors.white : color,
+            fontWeight: FontWeight.bold),
         filled: true,
-        fillColor: Colors.black12,
+        fillColor: backgroundColor,
+        contentPadding: const EdgeInsets.only(
+          left: 18,
+        ),
         border: OutlineInputBorder(
           borderSide: BorderSide.none,
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(0.0),
         ),
       ),
       validator: validator,
