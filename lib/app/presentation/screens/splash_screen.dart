@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 import 'package:flutter_pokedex/app/presentation/screens/login_screen.dart';
 import 'package:flutter_pokedex/app/presentation/screens/pokedex_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,7 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.red,
+      color: ConstValues.primaryColor,
       alignment: Alignment.center,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
