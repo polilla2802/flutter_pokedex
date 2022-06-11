@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/app/configuration/environment.dart';
+import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 import 'package:flutter_pokedex/app/presentation/screens/splash_screen.dart';
 
 void main() {
@@ -21,11 +22,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      builder: (context, child) {
+        return MediaQuery(
+          child: child!,
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+        );
+      },
+      title: 'Pokedex',
       theme: ThemeData(
-        primaryColor: Colors.red,
-        primarySwatch: Colors.red,
-        backgroundColor: Colors.red,
+        fontFamily: "Aldrich",
+        primaryColor: ConstValues.primaryColor,
+        primarySwatch: ConstValues.myBlackColor,
+        backgroundColor: ConstValues.primaryColor,
         scaffoldBackgroundColor: Colors.white,
       ),
       home: SplashScreen(),
