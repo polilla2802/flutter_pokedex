@@ -267,11 +267,6 @@ class API {
   Future<Map<String, String>> _getHeaders(
       ApiChannel api, AuthType authType, String token) async {
     switch (api) {
-      case ApiChannel.urlencoded:
-        return {
-          "content-type": "application/x-www-form-urlencoded",
-          "authorization": _getAuthHeader(authType, token),
-        };
       case ApiChannel.pokedex:
       default:
         return {
@@ -287,6 +282,8 @@ class API {
         return "Bearer $token";
       case AuthType.soft:
         return environment!.secretKey!;
+      default:
+        return "";
     }
   }
 

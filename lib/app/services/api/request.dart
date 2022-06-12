@@ -1,18 +1,16 @@
-enum ApiChannel { pokedex, urlencoded, undefined }
+enum ApiChannel { pokedex, undefined }
 
 String getApiChannelKey(ApiChannel api) {
   switch (api) {
     case ApiChannel.pokedex:
       return "pokedex";
-    case ApiChannel.urlencoded:
-      return "urlencoded";
     case ApiChannel.undefined:
     default:
       return "undefined";
   }
 }
 
-enum AuthType { bearer, soft }
+enum AuthType { bearer, soft, none }
 
 class ApiRequest {
   ApiChannel api;
