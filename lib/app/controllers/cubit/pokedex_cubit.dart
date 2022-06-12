@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pokedex/app/configuration/environment.dart';
 import 'package:flutter_pokedex/app/models/core/result.dart';
 import 'package:flutter_pokedex/app/models/pokemon/pokemon_model.dart';
 import 'package:flutter_pokedex/app/repos/pokedex_repo.dart';
@@ -12,18 +11,13 @@ class PokedexCubit extends Cubit<PokedexState> {
 
   PokedexCubit(this._pokedexRepo) : super(const PokedexInitial());
 
-  Future<void> getPokedex(int pokemonCount, BuildContext context) async {
+  Future<void> getPokemonCount(int pokemonCount, BuildContext context) async {
     try {
       emit(PokedexLoading());
 
-      List<Result<Pokemon>> pokemons = [];
-
-      for (var i = 1; i < pokemonCount; ++i) {
-        Result<Pokemon> pokemon = await _pokedexRepo.getPokemonById(i);
-        pokemons.add(pokemon);
-      }
-
-      emit(PokedexLoaded(pokemons));
+      Future.delayed(const Duration(milliseconds: 100), () {
+        emit(PokedexLoaded(pokemonCount));
+      });
     } catch (e) {
       emit(PokedexError("error"));
     }
@@ -38,6 +32,7 @@ class PokedexCubit extends Cubit<PokedexState> {
       print("pokemon ${pokemon.data}");
       emit(PokemonLoaded(pokemon.data!));
     } catch (e) {
+      if (isClosed) return null;
       emit(PokedexError("error"));
     }
   }
