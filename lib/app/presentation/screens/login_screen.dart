@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_pokedex/app/configuration/environment.dart';
 import 'package:flutter_pokedex/app/controllers/cubit/pokedex_cubit.dart';
 import 'package:flutter_pokedex/app/models/pokemon/pokemon_model.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_card.dart';
@@ -69,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen>
 
       await _setUser(_userName);
 
-      await Navigator.push(
+      await Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => PokedexScreen()),
       );
@@ -92,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   void _getRandNumber() {
     var rng = Random();
-    _randomNumber = rng.nextInt(150);
+    _randomNumber = rng.nextInt(environment!.totalPokemon!);
   }
 
   @override
@@ -386,9 +387,11 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void dispose() {
     print('$_key Dispose invoked');
+    _animationController.dispose();
     _loginController.dispose();
-    if (_myFocus != null) return;
-    _myFocus!.dispose();
+    if (_myFocus != null) {
+      _myFocus!.dispose();
+    }
     super.dispose();
   }
 }

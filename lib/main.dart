@@ -10,6 +10,7 @@ void main() {
   BuildEnvironment.init(
       apiBaseAddress: "https://pokeapi.co/api/v2",
       env: Environment.production,
+      totalPokemon: 150,
       secretKey: "",
       bearer: "");
   runApp(const MyApp());
