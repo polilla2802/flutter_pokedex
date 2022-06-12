@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_card.dart';
+import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_list_tile.dart';
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 import 'package:flutter_pokedex/app/presentation/screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +19,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
   late String _userName = "";
   late ScrollController _scrollController;
   late int _pokemonCount = 10;
+  late bool _listView = false;
 
   _PokedexScreenState(String pokedexScreenKey) {
     _key = pokedexScreenKey;
@@ -97,7 +99,27 @@ class _PokedexScreenState extends State<PokedexScreen> {
         },
         child: Scaffold(
             appBar: AppBar(
-              leading: Container(),
+              leading: _listView
+                  ? GestureDetector(
+                      onTap: () => setState(() {
+                            _listView = !_listView;
+                          }),
+                      child: Container(
+                        child: Icon(
+                          Icons.grid_view,
+                          color: Colors.white,
+                        ),
+                      ))
+                  : GestureDetector(
+                      onTap: () => setState(() {
+                            _listView = !_listView;
+                          }),
+                      child: Container(
+                        child: Icon(
+                          Icons.list,
+                          color: Colors.white,
+                        ),
+                      )),
               title: Container(
                 width: double.infinity,
                 child: Text(
@@ -123,19 +145,39 @@ class _PokedexScreenState extends State<PokedexScreen> {
 
   Widget _buildBody() {
     return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         child: Container(
-          alignment: Alignment.topCenter,
-          child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Wrap(children: [_buildPokedex(_pokemonCount)])),
-        ));
+            alignment: Alignment.topCenter,
+            child: _listView
+                ? _buildPokedexList(_pokemonCount)
+                : _buildPokedexGrid(_pokemonCount)));
   }
 
-  Widget _buildPokedex(int pokemonCount) {
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [for (int i = 1; i < pokemonCount; i++) _getPokemonCard(i)]);
+  Widget _buildPokedexList(int pokemonCount) {
+    return SingleChildScrollView(
+        controller: _scrollController,
+        child: Wrap(children: [
+          Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+            for (int i = 1; i < pokemonCount; i++) _getPokemonListTile(i)
+          ])
+        ]));
+  }
+
+  Widget _buildPokedexGrid(int pokemonCount) {
+    return Center(
+        child: GridView.extent(
+      controller: _scrollController,
+      primary: false,
+      padding: const EdgeInsets.all(0),
+      crossAxisSpacing: 0,
+      mainAxisSpacing: 0,
+      maxCrossAxisExtent: 200.0,
+      children: [for (int i = 1; i < pokemonCount; i++) _getPokemonCard(i)],
+    ));
+  }
+
+  Widget _getPokemonListTile(int id) {
+    return PokemonListTile(id);
   }
 
   Widget _getPokemonCard(int id) {

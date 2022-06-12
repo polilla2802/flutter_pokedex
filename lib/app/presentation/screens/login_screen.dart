@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pokedex/app/configuration/environment.dart';
 import 'package:flutter_pokedex/app/controllers/cubit/pokedex_cubit.dart';
-import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_card.dart';
+import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_list_tile.dart';
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 import 'package:flutter_pokedex/app/presentation/components/form/input.dart';
 import 'package:flutter_pokedex/app/presentation/screens/pokedex_screen.dart';
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _getPokemonCard(int id) {
-    return PokemonCard(id);
+    return PokemonListTile(id);
   }
 
   Widget _getPokemonError() {
