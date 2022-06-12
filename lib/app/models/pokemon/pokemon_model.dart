@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter_pokedex/app/models/core/result.dart';
 import 'package:flutter_pokedex/app/models/exceptions/response.dart';
 
