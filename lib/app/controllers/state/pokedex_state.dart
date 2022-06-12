@@ -14,18 +14,18 @@ class PokedexLoading extends PokedexState {
 }
 
 class PokedexLoaded extends PokedexState {
-  final List<Result<Pokemon>> pokedex;
-  const PokedexLoaded(this.pokedex);
+  final int pokemonCount;
+  const PokedexLoaded(this.pokemonCount);
 
   @override
   bool operator ==(Object o) {
     if (identical(this, o)) return true;
 
-    return o is PokedexLoaded && o.pokedex == pokedex;
+    return o is PokedexLoaded && o.pokemonCount == pokemonCount;
   }
 
   @override
-  int get hashCode => pokedex.hashCode;
+  int get hashCode => pokemonCount.hashCode;
 }
 
 class PokemonLoaded extends PokedexState {
