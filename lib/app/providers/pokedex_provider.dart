@@ -10,4 +10,9 @@ class PokedexProvider {
   PokedexProvider() {
     _api = API();
   }
+
+  Future<ApiResult> getPokemonById(int pokemonId) async {
+    return await _api.get(ApiRequest(ApiChannel.pokedex, "getPokemonById",
+        "/pokemon/$pokemonId", AuthType.none));
+  }
 }

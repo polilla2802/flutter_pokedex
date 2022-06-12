@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pokedex/app/controllers/cubit/pokedex_cubit.dart';
+import 'package:flutter_pokedex/app/models/core/result.dart';
 import 'package:flutter_pokedex/app/models/pokemon/pokemon_model.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_card.dart';
+import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 import 'package:flutter_pokedex/app/presentation/components/snackbar/custom_snackbar.dart';
 import 'package:flutter_pokedex/app/presentation/screens/login_screen.dart';
 import 'package:flutter_pokedex/app/repos/pokedex_repo.dart';
@@ -22,59 +24,45 @@ class _PokedexScreenState extends State<PokedexScreen> {
   late PokedexRepo _pokedexRepo;
   late String _userName = "";
   late CustomSnackbar _customSnackBar;
-  final List<Pokemon> _pokemons = [
-    Pokemon(
-        "Bulbasaur",
-        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/1.gif",
-        "green",
-        1,
-        "grass",
-        type2: "poison"),
-    Pokemon(
-        "Ivysaur",
-        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/2.gif",
-        "green",
-        2,
-        "grass",
-        type2: "poison"),
-    Pokemon(
-        "Venasaur",
-        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/3.gif",
-        "green",
-        3,
-        "grass",
-        type2: "poison"),
-    Pokemon(
-        "Charmander",
-        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/4.gif",
-        "red",
-        4,
-        "fire"),
-    Pokemon(
-        "Charmeleon",
-        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/5.gif",
-        "red",
-        5,
-        "fire"),
-    Pokemon(
-        "Charizard",
-        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/6.gif",
-        "red",
-        6,
-        "fire")
-  ];
+  late ScrollController _scrollController;
+  int _pokemonCount = 10;
+
   _PokedexScreenState(String pokedexScreenKey) {
     _key = pokedexScreenKey;
     _pokedexRepo = PokedexRepo();
     _customSnackBar = CustomSnackbar();
+    _scrollController = ScrollController();
   }
 
   @override
   void initState() {
     super.initState();
+    _scrollListener();
     print("$_key invoked");
     WidgetsBinding.instance!
         .addPostFrameCallback((_) async => await _afterBuild());
+  }
+
+  void _scrollListener() {
+    _scrollController.addListener(() {
+      if (_scrollController.position.maxScrollExtent ==
+          _scrollController.offset) {
+        //the bottom of the scrollbar is reached
+        //adding more widgets
+        print("reached bottom");
+
+        if (_pokemonCount < 150) {
+          setState(() {
+            _pokemonCount = _pokemonCount + 10;
+          });
+        }
+        if (_pokemonCount == 150) {
+          setState(() {
+            _pokemonCount = _pokemonCount + 1;
+          });
+        }
+      }
+    });
   }
 
   Future<void> _getUser() async {
@@ -88,7 +76,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
     _getUser();
   }
 
-  Future<void> _postTask() async {
+  Future<void> _pokemonCardDetails() async {
     //TODO: implement pokemon details screen
 
     // await Navigator.push(
@@ -110,10 +98,6 @@ class _PokedexScreenState extends State<PokedexScreen> {
         builder: (context) => LoginScreen()));
   }
 
-  Future<void> _getPokemonById({int? pokemonId}) async {
-    //TODO: implement _getPokemonById
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -125,17 +109,23 @@ class _PokedexScreenState extends State<PokedexScreen> {
             child: Scaffold(
                 appBar: AppBar(
                   leading: Container(),
-                  title: Text(
-                    _userName,
-                    textAlign: TextAlign.center,
+                  title: Container(
+                    width: double.infinity,
+                    child: Text(
+                      _userName,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                   actions: [
                     GestureDetector(
                         onTap: () => _logOut(),
                         child: Container(
                             alignment: Alignment.center,
-                            padding: const EdgeInsets.only(right: 16),
-                            child: const Text("Logout")))
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Icon(
+                              Icons.logout,
+                              color: Colors.white,
+                            )))
                   ],
                 ),
                 body: _buildBody(),
@@ -155,26 +145,22 @@ class _PokedexScreenState extends State<PokedexScreen> {
           listener: (context, state) => _pokedexListener(state),
           builder: (context, state) {
             if (state is PokedexInitial) {
+              _getPokedex(_pokemonCount, context);
               return Container(
-                alignment: Alignment.topCenter,
-                child: SingleChildScrollView(
-                    child: Wrap(children: [_buildPokedex()])),
+                alignment: Alignment.center,
+                child: Image.asset("assets/loader/roll.gif"),
               );
             } else if (state is PokedexLoading) {
               return Container(
                 alignment: Alignment.center,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [CircularProgressIndicator()],
-                ),
+                child: Image.asset("assets/loader/roll.gif"),
               );
             } else if (state is PokedexLoaded) {
               return Container(
                 alignment: Alignment.topCenter,
                 child: SingleChildScrollView(
-                    child: Wrap(children: [_buildPokedex()])),
+                    controller: _scrollController,
+                    child: Wrap(children: [_buildPokedex(state.pokedex)])),
               );
             } else {
               return Container(
@@ -182,7 +168,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [Text("No tienes ninguna tarea aún")],
+                  children: [Text("Error")],
                 ),
               );
             }
@@ -190,46 +176,49 @@ class _PokedexScreenState extends State<PokedexScreen> {
         ));
   }
 
-  Widget _buildPokedex() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: _pokemons
+  Widget _buildPokedex(List<Result<Pokemon>> pokedex) {
+    return Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+      ...pokedex
           .asMap()
           .map((i, item) => MapEntry(
                 i,
-                _getPokemon(i, item),
+                _getPokemonCard(i, item),
               ))
           .values
-          .toList(),
-    );
+          .toList()
+    ]);
   }
 
-  Widget _getPokemon(int id, Pokemon pokemon) {
-    return PokemonCard(pokemon);
+  Future<void> _getPokedex(int pokemonCount, BuildContext context) async {
+    final pokedexCubit = BlocProvider.of<PokedexCubit>(context);
+    await pokedexCubit.getPokedex(pokemonCount, context);
+  }
+
+  Widget _getPokemonCard(int id, Result<Pokemon> pokemon) {
+    if (pokemon.hasData()) {
+      return PokemonCard(pokemon.data!);
+    } else {
+      return Container(
+        child: Text("error"),
+      );
+    }
   }
 
   Widget _floatingButton() {
-    return BlocConsumer<PokedexCubit, PokedexState>(
-      listener: (context, state) => _pokedexListener(state),
-      builder: (context, state) {
-        if (state is PokedexInitial) {
-          return Container();
-        } else if (state is PokedexLoading) {
-          return Container();
-        } else if (state is PokedexLoaded) {
-          return Container(
-            alignment: Alignment.topCenter,
-            child:
-                SingleChildScrollView(child: Wrap(children: [_buildPokedex()])),
-          );
-        } else {
-          return FloatingActionButton(
-            onPressed: () => _postTask(),
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          );
-        }
+    return GestureDetector(
+      onTap: () => {
+        _scrollController.animateTo(_scrollController.position.minScrollExtent,
+            duration: Duration(milliseconds: 1500), curve: Curves.decelerate)
       },
+      child: Container(
+        child: Chip(
+          label: Icon(
+            Icons.arrow_upward_rounded,
+            color: Colors.white,
+          ),
+          backgroundColor: ConstValues.primaryColor,
+        ),
+      ),
     );
   }
 
