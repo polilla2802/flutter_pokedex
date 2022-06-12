@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pokedex/app/controllers/cubit/pokedex_cubit.dart';
+import 'package:flutter_pokedex/app/models/pokemon/pokemon_model.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_card.dart';
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 import 'package:flutter_pokedex/app/presentation/components/form/input.dart';
@@ -52,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> _getPokemonNumber(BuildContext context) async {
     final pokedexCubit = BlocProvider.of<PokedexCubit>(context);
-    await pokedexCubit.getPokemon(_randomNumber, context);
+    await pokedexCubit.getPokemonById(_randomNumber, context);
   }
 
   Future<void> _setUser(String userName) async {
@@ -117,8 +118,8 @@ class _LoginScreenState extends State<LoginScreen>
             )));
   }
 
-  Widget _getPokemonCard(int pokemonNumber) {
-    return PokemonCard(pokemonNumber);
+  Widget _getPokemonCard(Pokemon pokemon) {
+    return PokemonCard(pokemon);
   }
 
   Widget _buildBody(BuildContext context) {
@@ -235,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ],
           );
-        } else if (state is PokedexLoaded) {
+        } else if (state is PokemonLoaded) {
           return Column(
             children: [
               GestureDetector(
@@ -278,14 +279,14 @@ class _LoginScreenState extends State<LoginScreen>
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Expanded(
-                                child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                    height:
-                                        MediaQuery.of(context).size.height * .2,
-                                    child: _getPokemonCard(state.pokemonId)),
-                              ],
+                                child: Container(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                      child: _getPokemonCard(state.pokemon)),
+                                ],
+                              ),
                             )),
                             ElevatedButton(
                               onPressed: () async => await _login(context),
