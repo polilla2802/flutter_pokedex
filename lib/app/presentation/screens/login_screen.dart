@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pokedex/app/configuration/environment.dart';
 import 'package:flutter_pokedex/app/controllers/cubit/pokedex_cubit.dart';
-import 'package:flutter_pokedex/app/models/pokemon/pokemon_model.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_card.dart';
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 import 'package:flutter_pokedex/app/presentation/components/form/input.dart';
@@ -27,9 +26,8 @@ class _LoginScreenState extends State<LoginScreen>
   late TextEditingController _loginController;
   late FocusNode? _myFocus;
   late int _randomNumber;
-  String _userName = "";
-  bool _started = false;
-  bool isPlaying = false;
+  late String _userName = "";
+  late bool isPlaying = false;
   late AnimationController _animationController;
   late PokedexRepo _pokedexRepo;
 
@@ -52,9 +50,9 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> _afterBuild() async {}
 
-  Future<void> _getPokemonNumber(BuildContext context) async {
+  Future<void> _getPokemonCount(BuildContext context) async {
     final pokedexCubit = BlocProvider.of<PokedexCubit>(context);
-    await pokedexCubit.getPokemonById(_randomNumber, context);
+    await pokedexCubit.getPokemonCount(_randomNumber, context);
   }
 
   Future<void> _setUser(String userName) async {
@@ -79,10 +77,9 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> _pokeballTap(BuildContext context) async {
     setState(() {
-      _started = true;
       _getRandNumber();
     });
-    await _getPokemonNumber(context);
+    await _getPokemonCount(context);
   }
 
   void _initializeAnimationController() {
@@ -119,8 +116,12 @@ class _LoginScreenState extends State<LoginScreen>
             )));
   }
 
-  Widget _getPokemonCard(Pokemon pokemon) {
-    return PokemonCard(pokemon);
+  Widget _getPokemonCard(int id) {
+    return PokemonCard(id);
+  }
+
+  Widget _getPokemonError() {
+    return Container(child: Text("Error Loading"));
   }
 
   Widget _buildBody(BuildContext context) {
@@ -211,14 +212,7 @@ class _LoginScreenState extends State<LoginScreen>
                             Expanded(
                                 child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                    child: Image.asset(
-                                  "assets/loader/roll.gif",
-                                  height:
-                                      MediaQuery.of(context).size.height * .12,
-                                ))
-                              ],
+                              children: [Container()],
                             )),
                             ElevatedButton(
                               onPressed: () async => await _login(context),
@@ -237,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ],
           );
-        } else if (state is PokemonLoaded) {
+        } else if (state is PokedexLoaded) {
           return Column(
             children: [
               GestureDetector(
@@ -285,7 +279,8 @@ class _LoginScreenState extends State<LoginScreen>
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Container(
-                                      child: _getPokemonCard(state.pokemon)),
+                                      child:
+                                          _getPokemonCard(state.pokemonCount)),
                                 ],
                               ),
                             )),
@@ -378,10 +373,6 @@ class _LoginScreenState extends State<LoginScreen>
         }
       },
     ));
-  }
-
-  Widget _getPokemonError() {
-    return Container(child: Text("Error"));
   }
 
   @override
