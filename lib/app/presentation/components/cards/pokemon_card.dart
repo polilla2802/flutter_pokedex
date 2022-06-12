@@ -1,7 +1,12 @@
 import 'dart:ui';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_pokedex/app/controllers/cubit/pokedex_cubit.dart';
 import 'package:flutter_pokedex/app/models/pokemon/pokemon_model.dart';
+import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
+import 'package:flutter_pokedex/app/repos/pokedex_repo.dart';
+import 'package:flutter_pokedex/app/services/utils/util.dart';
 
 class PokemonCard extends StatefulWidget {
   final Pokemon pokemon;
@@ -16,25 +21,24 @@ class PokemonCard extends StatefulWidget {
 }
 
 class _PokemonCardState extends State<PokemonCard> {
-  late String _name;
-  late String _imageUrl;
-  late String _colorString;
   late int _dexNumber;
-  late String _type1;
-  late String? _type2;
+  late String _name = "";
+  late String _imageUrl =
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/';
+  late String _type1 = "";
+  String? _type2;
+  late PokedexRepo _pokedexRepo;
 
   final EdgeInsetsGeometry buttonMargin =
       const EdgeInsets.only(top: 8, bottom: 8);
-
   _PokemonCardState(
     Pokemon pokemon,
   ) {
-    _name = pokemon.name;
-    _imageUrl = pokemon.imageUrl;
     _dexNumber = pokemon.dexNumber;
-    _colorString = pokemon.color;
+    _name = pokemon.name;
     _type1 = pokemon.type1;
-    _type2 = pokemon.type2;
+    if (pokemon.type2 != null) _type2 = pokemon.type2;
+    _pokedexRepo = PokedexRepo();
   }
 
   @override
@@ -46,168 +50,145 @@ class _PokemonCardState extends State<PokemonCard> {
 
   Future<void> _afterBuild() async {}
 
-  String _toDexNumber(int dexNumber) {
-    String dexString = dexNumber.toString();
-    if (dexString.length >= 3) {
-      return "#$dexNumber";
-    }
-    if (dexString.length == 2) {
-      return "#0$dexNumber";
-    }
-    return "#00$dexNumber";
-  }
-
-//The function gets the Color
-  Color getColor(String color) {
-    switch (color) {
-      case "black":
-        return Colors.black;
-      case "blue":
-        return Colors.blue;
-      case "brown":
-        return Colors.brown;
-      case "gray":
-        return Colors.grey;
-      case "green":
-        return Colors.green;
-      case "pink":
-        return Colors.pink;
-      case "purple":
-        return Colors.purple;
-      case "red":
-        return Colors.red;
-      case "white":
-        return Colors.white;
-      case "yellow":
-        return Colors.yellow;
-      default:
-        return Colors.black;
-    }
+  Widget _getPokemonImg() {
+    return CachedNetworkImage(
+        imageUrl: _imageUrl + "$_dexNumber.gif",
+        fadeInDuration: Duration.zero,
+        placeholderFadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        placeholder: (context, url) => Image.asset("assets/loader/roll.gif"));
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: buttonMargin,
-      child: GestureDetector(
-        onTap: () {},
-        child: Column(children: [
-          Container(
-            padding: const EdgeInsets.only(top: 6),
-            decoration: BoxDecoration(
-                color: getColor(_colorString),
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10))),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _name,
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding:
-                const EdgeInsets.only(top: 3, bottom: 3, right: 3, left: 3),
-            decoration: BoxDecoration(
-                color: getColor(_colorString),
-                borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(10),
-                    bottomRight: Radius.circular(10))),
-            child: Card(
-              margin: const EdgeInsets.all(0),
-              elevation: 0.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25.0),
-              ),
-              child: Container(
-                padding: const EdgeInsets.only(bottom: 8),
+        margin: buttonMargin,
+        child: BlocProvider(
+          create: (context) => PokedexCubit(_pokedexRepo),
+          child: GestureDetector(
+            onTap: () {},
+            child: Column(children: [
+              Container(
+                padding: const EdgeInsets.only(top: 8, right: 16, left: 16),
                 decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10)),
+                    color: PokemonUtils.getColorByType(
+                        PokemonUtils.getTypeEnum(_type1)),
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10))),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        child: ListTile(
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: BackdropFilter(
-                                filter:
-                                    ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
-                                child: Container(
-                                  width: 50,
-                                  child: Image.network(
-                                    _imageUrl,
-                                    scale: .01,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(25.0)),
-                                    border: Border.all(
-                                      color: getColor(_colorString),
-                                      width: 3.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            dense: true,
-                            minVerticalPadding: 5,
-                            minLeadingWidth: 10,
-                            horizontalTitleGap: 8,
-                            title: Container(
-                                child: Text(
-                              _toDexNumber(_dexNumber),
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w900,
-                                  color: getColor(_colorString)),
-                            )),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(
-                                  _name,
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.normal,
-                                      color: getColor(_colorString)),
-                                ),
-                                Container(height: 10),
-                                Text(
-                                  _type1,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.normal,
-                                      color: getColor(_colorString)),
-                                ),
-                                _type2 != null
-                                    ? Text(
-                                        _type2!,
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.normal,
-                                            color: getColor(_colorString)),
-                                      )
-                                    : Container()
-                              ],
-                            )),
-                      ),
+                    Text(
+                      PokemonUtils.toDexNumber(_dexNumber),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      _name.toUpperCase(),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
               ),
-            ),
+              Container(
+                padding:
+                    const EdgeInsets.only(top: 3, bottom: 3, right: 3, left: 3),
+                decoration: BoxDecoration(
+                    color: PokemonUtils.getColorByType(
+                        PokemonUtils.getTypeEnum(_type1)),
+                    borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(10),
+                        bottomRight: Radius.circular(10))),
+                child: Card(
+                  margin: const EdgeInsets.all(0),
+                  elevation: 0.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25.0),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                        color: ConstValues.secondaryColor,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            child: ListTile(
+                                leading: ClipRRect(
+                                  borderRadius: BorderRadius.circular(50),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 2.0, sigmaY: 2.0),
+                                    child: Container(
+                                      width: 50,
+                                      child: _getPokemonImg(),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            PokemonUtils.getLighterColorByType(
+                                                PokemonUtils.getTypeEnum(
+                                                    _type1)),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(50.0)),
+                                        border: Border.all(
+                                          color: PokemonUtils.getColorByType(
+                                              PokemonUtils.getTypeEnum(_type1)),
+                                          width: 3.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                dense: true,
+                                minVerticalPadding: 8,
+                                minLeadingWidth: 10,
+                                horizontalTitleGap: 8,
+                                title: Container(
+                                  padding: EdgeInsets.only(top: 16),
+                                ),
+                                subtitle: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.only(top: 8),
+                                      alignment: Alignment.centerRight,
+                                      child: Image.asset(
+                                        PokemonUtils.getImageByType(
+                                            PokemonUtils.getTypeEnum(_type1)),
+                                        height: 25,
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 8,
+                                    ),
+                                    _type2 != null
+                                        ? Container(
+                                            padding: EdgeInsets.only(top: 8),
+                                            alignment: Alignment.centerRight,
+                                            child: Image.asset(
+                                              PokemonUtils.getImageByType(
+                                                  PokemonUtils.getTypeEnum(
+                                                      _type2!)),
+                                              height: 25,
+                                            ))
+                                        : Container()
+                                  ],
+                                )),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ]),
           ),
-        ]),
-      ),
-    );
+        ));
   }
 }
