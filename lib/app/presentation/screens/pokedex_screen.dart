@@ -20,6 +20,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
   late ScrollController _scrollController;
   late int _pokemonCount = 10;
   late bool _listView = false;
+  late bool _selectPokemon = false;
 
   _PokedexScreenState(String pokedexScreenKey) {
     _key = pokedexScreenKey;
@@ -98,47 +99,77 @@ class _PokedexScreenState extends State<PokedexScreen> {
           return false;
         },
         child: Scaffold(
-            appBar: AppBar(
-              leading: _listView
-                  ? GestureDetector(
-                      onTap: () => setState(() {
-                            _listView = !_listView;
-                          }),
-                      child: Container(
-                        child: Icon(
-                          Icons.grid_view,
-                          color: Colors.white,
-                        ),
-                      ))
-                  : GestureDetector(
-                      onTap: () => setState(() {
-                            _listView = !_listView;
-                          }),
-                      child: Container(
-                        child: Icon(
-                          Icons.list,
-                          color: Colors.white,
-                        ),
-                      )),
-              title: Container(
-                width: double.infinity,
-                child: Text(
-                  _userName,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              actions: [
-                GestureDetector(
-                    onTap: () => _logOut(),
-                    child: Container(
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Icon(
-                          Icons.logout,
-                          color: Colors.white,
-                        )))
-              ],
-            ),
+            appBar: _selectPokemon
+                ? AppBar(
+                    backgroundColor: _selectPokemon
+                        ? ConstValues.primaryColor
+                        : ConstValues.secondaryColor,
+                    leading: Container(),
+                    title: Container(
+                      width: double.infinity,
+                      child: Text(
+                        "Select Team",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    actions: [
+                      GestureDetector(
+                          onTap: () => _logOut(),
+                          child: Container(
+                              alignment: Alignment.center,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Icon(
+                                Icons.logout,
+                                color: Colors.white,
+                              )))
+                    ],
+                  )
+                : AppBar(
+                    backgroundColor: _selectPokemon
+                        ? ConstValues.primaryColor
+                        : ConstValues.secondaryColor,
+                    leading: _listView
+                        ? GestureDetector(
+                            onTap: () => setState(() {
+                                  _listView = !_listView;
+                                }),
+                            child: Container(
+                              child: Icon(
+                                Icons.grid_view,
+                                color: Colors.white,
+                              ),
+                            ))
+                        : GestureDetector(
+                            onTap: () => setState(() {
+                                  _listView = !_listView;
+                                }),
+                            child: Container(
+                              child: Icon(
+                                Icons.list,
+                                color: Colors.white,
+                              ),
+                            )),
+                    title: Container(
+                      width: double.infinity,
+                      child: Text(
+                        _userName,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    actions: [
+                      GestureDetector(
+                          onTap: () => _logOut(),
+                          child: Container(
+                              alignment: Alignment.center,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Icon(
+                                Icons.logout,
+                                color: Colors.white,
+                              )))
+                    ],
+                  ),
             body: _buildBody(),
             floatingActionButton: _floatingButton()));
   }
@@ -185,21 +216,23 @@ class _PokedexScreenState extends State<PokedexScreen> {
   }
 
   Widget _floatingButton() {
-    return GestureDetector(
-      onTap: () => {
-        _scrollController.animateTo(_scrollController.position.minScrollExtent,
-            duration: Duration(milliseconds: 1500), curve: Curves.decelerate)
-      },
-      child: Container(
-        child: Chip(
-          label: Icon(
-            Icons.arrow_upward_rounded,
-            color: Colors.white,
-          ),
-          backgroundColor: ConstValues.primaryColor,
-        ),
-      ),
-    );
+    if (_selectPokemon == false) {
+      return FloatingActionButton(
+        onPressed: () => setState(() {
+          _selectPokemon = !_selectPokemon;
+        }),
+        backgroundColor: ConstValues.primaryColor,
+        child: const Icon(Icons.add),
+      );
+    } else {
+      return FloatingActionButton(
+        onPressed: () => setState(() {
+          _selectPokemon = !_selectPokemon;
+        }),
+        backgroundColor: ConstValues.secondaryColor,
+        child: const Icon(Icons.close),
+      );
+    }
   }
 
   @override
