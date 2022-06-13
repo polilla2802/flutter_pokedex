@@ -31,7 +31,8 @@ class PokemonCount extends PokedexState {
 class PokemonLoaded extends PokedexState {
   final Pokemon pokemon;
   final PokemonDetails? pokemonDetails;
-  const PokemonLoaded(this.pokemon, {this.pokemonDetails});
+  final PokemonChain? pokemonChain;
+  const PokemonLoaded(this.pokemon, {this.pokemonDetails, this.pokemonChain});
 
   @override
   bool operator ==(Object o) {
