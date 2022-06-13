@@ -12,15 +12,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PokemonListTile extends StatefulWidget {
   final int pokemonId;
   final bool interactive;
+  final bool selectable;
+  final bool selected;
+  final Function(int val)? addPokemon;
+  final Function(int val)? resPokemon;
   const PokemonListTile(
     this.pokemonId,
-    this.interactive, {
+    this.interactive,
+    this.selectable,
+    this.selected, {
+    this.addPokemon,
+    this.resPokemon,
     Key? key,
   }) : super(key: key);
 
   @override
   State<PokemonListTile> createState() =>
-      _PokemonListTileState(pokemonId, interactive);
+      _PokemonListTileState(pokemonId, interactive, selectable, selected,
+          addPokemon: addPokemon, resPokemon: resPokemon);
 }
 
 class _PokemonListTileState extends State<PokemonListTile> {
@@ -34,12 +43,22 @@ class _PokemonListTileState extends State<PokemonListTile> {
   late bool _interactive;
   final EdgeInsetsGeometry buttonMargin =
       const EdgeInsets.only(top: 8, bottom: 8);
+  bool _selectable = false;
+  bool _selected = false;
+  late Function(int val)? _addPokemon;
+  late Function(int val)? _resPokemon;
 
   late PokedexRepo _pokedexRepo;
 
-  _PokemonListTileState(int pokemonId, bool interactive) {
+  _PokemonListTileState(
+      int pokemonId, bool interactive, bool selectable, bool selected,
+      {Function(int val)? addPokemon, Function(int val)? resPokemon}) {
     _dexNumber = pokemonId;
     _interactive = interactive;
+    _selectable = selectable;
+    _selected = selected;
+    _addPokemon = addPokemon;
+    _resPokemon = resPokemon;
     _pokedexRepo = PokedexRepo();
   }
 
@@ -133,8 +152,18 @@ class _PokemonListTileState extends State<PokemonListTile> {
       return Container(
           margin: buttonMargin,
           child: GestureDetector(
-            onTap: () async =>
-                _interactive ? _pokemonCardDetails(_dexNumber) : null,
+            onTap: _interactive
+                ? _selectable
+                    ? () async => setState(() {
+                          _selected = !_selected;
+                          if (_selected) {
+                            _addPokemon!(_dexNumber);
+                          } else {
+                            _resPokemon!(_dexNumber);
+                          }
+                        })
+                    : () async => _pokemonCardDetails(_dexNumber)
+                : null,
             child: Column(children: [
               Container(
                 padding: const EdgeInsets.only(top: 8, right: 16, left: 16),
@@ -182,8 +211,10 @@ class _PokemonListTileState extends State<PokemonListTile> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                        color: PokemonUtils.getLighterColorByType(
-                            PokemonUtils.getTypeEnum(_type1)),
+                        color: _selected
+                            ? ConstValues.secondaryColor
+                            : PokemonUtils.getLighterColorByType(
+                                PokemonUtils.getTypeEnum(_type1)),
                         borderRadius: BorderRadius.circular(10)),
                     child: Row(
                       children: [
@@ -469,15 +500,28 @@ class _PokemonListTileState extends State<PokemonListTile> {
                   );
                 } else if (state is PokemonLoaded) {
                   return GestureDetector(
-                    onTap: () async =>
-                        _interactive ? _pokemonCardDetails(_dexNumber) : null,
+                    onTap: _interactive
+                        ? _selectable
+                            ? () async => setState(() {
+                                  _selected = !_selected;
+                                  if (_selected) {
+                                    _addPokemon!(state.pokemon.dexNumber);
+                                  } else {
+                                    _resPokemon!(state.pokemon.dexNumber);
+                                  }
+                                })
+                            : () async => _pokemonCardDetails(_dexNumber)
+                        : null,
                     child: Column(children: [
                       Container(
                         padding:
                             const EdgeInsets.only(top: 8, right: 16, left: 16),
                         decoration: BoxDecoration(
-                            color: PokemonUtils.getColorByType(
-                                PokemonUtils.getTypeEnum(state.pokemon.type1)),
+                            color: _selected
+                                ? ConstValues.secondaryColor
+                                : PokemonUtils.getColorByType(
+                                    PokemonUtils.getTypeEnum(
+                                        state.pokemon.type1)),
                             borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(10),
                                 topRight: Radius.circular(10))),
@@ -519,9 +563,11 @@ class _PokemonListTileState extends State<PokemonListTile> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
-                                color: PokemonUtils.getLighterColorByType(
-                                    PokemonUtils.getTypeEnum(
-                                        state.pokemon.type1)),
+                                color: _selected
+                                    ? ConstValues.secondaryColor
+                                    : PokemonUtils.getLighterColorByType(
+                                        PokemonUtils.getTypeEnum(
+                                            state.pokemon.type1)),
                                 borderRadius: BorderRadius.circular(10)),
                             child: Row(
                               children: [
