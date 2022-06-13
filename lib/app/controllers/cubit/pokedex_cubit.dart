@@ -59,11 +59,21 @@ class PokedexCubit extends Cubit<PokedexState> {
       emit(PokemonLoading());
 
       Result<Pokemon> pokemon = await _pokedexRepo.getPokemonById(pokemonId);
+
       Result<PokemonDetails> pokemonDetails =
           await _pokedexRepo.getPokemonDetailsById(pokemonId);
 
+      int evolutionId = int.parse(pokemonDetails.data!.evolutionChain
+          .replaceAll('https://pokeapi.co/api/v2/evolution-chain/', '')
+          .replaceAll('/', ''));
+
+      Result<PokemonChain> pokemonChain =
+          await _pokedexRepo.getPokemonEvolutionById(evolutionId);
+
       print("pokemon ${pokemon.data}");
-      emit(PokemonLoaded(pokemon.data!, pokemonDetails: pokemonDetails.data));
+      emit(PokemonLoaded(pokemon.data!,
+          pokemonDetails: pokemonDetails.data,
+          pokemonChain: pokemonChain.data));
     } catch (e) {
       if (isClosed) return null;
       emit(PokemonError("error"));
