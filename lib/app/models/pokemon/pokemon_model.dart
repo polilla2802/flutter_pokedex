@@ -55,6 +55,7 @@ class PokemonDetails {
   bool isBaby;
   bool isLegendary;
   String shape;
+  String evolutionChain;
   PokemonDetails(
       this.flavorText,
       this.genre,
@@ -67,7 +68,8 @@ class PokemonDetails {
       this.hatchCounter,
       this.isBaby,
       this.isLegendary,
-      this.shape);
+      this.shape,
+      this.evolutionChain);
 
   static Result<PokemonDetails> fromJson(Map<String, dynamic> json) {
     try {
@@ -86,6 +88,7 @@ class PokemonDetails {
         json["is_baby"],
         json["is_legendary"],
         json["shape"]["name"],
+        json["evolution_chain"]["url"],
       );
 
       return Result.ok(response);
@@ -121,6 +124,91 @@ class PokemonMove {
       return Result.ok(response);
     } catch (e) {
       print("[PokemonMove] fromJson error: " + "${e.toString()}");
+      return Result.fail(FailToParseResponseError(error: e.toString()));
+    }
+  }
+}
+
+class PokemonChain {
+  Result<EvolutionChain> evolutionChain;
+
+  PokemonChain(this.evolutionChain);
+
+  static Result<PokemonChain> fromJson(Map<String, dynamic> json) {
+    try {
+      final response = PokemonChain(
+        EvolutionChain.fromJson(json["chain"]),
+      );
+
+      return Result.ok(response);
+    } catch (e) {
+      print("[PokemonChain] fromJson error: " + "${e.toString()}");
+      return Result.fail(FailToParseResponseError(error: e.toString()));
+    }
+  }
+}
+
+class EvolutionChain {
+  List<Result<PokemonLink>> pokemonLink;
+  Result<PokemonSpecie> pokemonSpecie;
+
+  EvolutionChain(this.pokemonLink, this.pokemonSpecie);
+
+  static Result<EvolutionChain> fromJson(Map<String, dynamic> json) {
+    try {
+      final response = EvolutionChain(
+        (json["evolves_to"] as List)
+            .map((sp) => PokemonLink.fromJson(sp))
+            .toList(),
+        PokemonSpecie.fromJson(json["species"]),
+      );
+
+      return Result.ok(response);
+    } catch (e) {
+      print("[EvolutionChain] fromJson error: " + "${e.toString()}");
+      return Result.fail(FailToParseResponseError(error: e.toString()));
+    }
+  }
+}
+
+class PokemonLink {
+  List<Result<PokemonLink>> pokemonLink;
+  Result<PokemonSpecie> pokemonSpecie;
+
+  PokemonLink(this.pokemonLink, this.pokemonSpecie);
+
+  static Result<PokemonLink> fromJson(Map<String, dynamic> json) {
+    try {
+      final response = PokemonLink(
+        (json["evolves_to"] as List)
+            .map((sp) => PokemonLink.fromJson(sp))
+            .toList(),
+        PokemonSpecie.fromJson(json["species"]),
+      );
+
+      return Result.ok(response);
+    } catch (e) {
+      print("[PokemonLink] fromJson error: " + "${e.toString()}");
+      return Result.fail(FailToParseResponseError(error: e.toString()));
+    }
+  }
+}
+
+class PokemonSpecie {
+  String name;
+  String id;
+  PokemonSpecie(this.name, this.id);
+
+  static Result<PokemonSpecie> fromJson(Map<String, dynamic> json) {
+    try {
+      final response = PokemonSpecie(
+        json["name"],
+        json["url"],
+      );
+
+      return Result.ok(response);
+    } catch (e) {
+      print("[PokemonSpecie] fromJson error: " + "${e.toString()}");
       return Result.fail(FailToParseResponseError(error: e.toString()));
     }
   }
