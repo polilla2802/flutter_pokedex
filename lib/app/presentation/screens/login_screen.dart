@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pokedex/app/configuration/environment.dart';
@@ -7,9 +9,7 @@ import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_list_t
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 import 'package:flutter_pokedex/app/presentation/components/form/input.dart';
 import 'package:flutter_pokedex/app/presentation/screens/pokedex_screen.dart';
-import 'package:flutter_pokedex/app/presentation/screens/pokemon_details_screen.dart';
 import 'package:flutter_pokedex/app/repos/pokedex_repo.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String loginScreenKey = "/login_screen";

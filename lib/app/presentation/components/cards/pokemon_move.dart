@@ -20,11 +20,6 @@ class PokemonMoveCard extends StatefulWidget {
 
 class _PokemonMoveCardState extends State<PokemonMoveCard> {
   late int _moveId;
-  late String _name = "";
-  late String _type = "";
-  late int _power;
-  late int _accuracy;
-  late int _pp;
   final EdgeInsetsGeometry buttonMargin =
       const EdgeInsets.only(top: 8, bottom: 8);
 
@@ -56,15 +51,6 @@ class _PokemonMoveCardState extends State<PokemonMoveCard> {
   Future<void> _getPokemonMoveById(int moveId, BuildContext context) async {
     final pokedexCubit = BlocProvider.of<PokedexCubit>(context);
     await pokedexCubit.getPokemonMoveById(moveId, context);
-  }
-
-  Widget _getMoveImg(String type) {
-    return CachedNetworkImage(
-        imageUrl: PokemonUtils.getImageByType(PokemonUtils.getTypeEnum(type)),
-        fadeInDuration: Duration.zero,
-        placeholderFadeInDuration: Duration.zero,
-        fadeOutDuration: Duration.zero,
-        placeholder: (context, url) => Image.asset("assets/loaders/roll.gif"));
   }
 
   @override

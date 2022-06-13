@@ -50,6 +50,8 @@ class _PokemonCardState extends State<PokemonCard> {
         .addPostFrameCallback((_) async => await _afterBuild());
   }
 
+  Future<void> _afterBuild() async {}
+
   Future<void> _checkLoaded() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -63,17 +65,6 @@ class _PokemonCardState extends State<PokemonCard> {
       if (type2 == "") return null;
       _type2 = type2;
     }
-  }
-
-  Future<void> _afterBuild() async {}
-
-  Widget _getPokemonImg() {
-    return CachedNetworkImage(
-        imageUrl: _imageUrl + "$_dexNumber.gif",
-        fadeInDuration: Duration.zero,
-        placeholderFadeInDuration: Duration.zero,
-        fadeOutDuration: Duration.zero,
-        placeholder: (context, url) => Image.asset("assets/loaders/roll.gif"));
   }
 
   Future<void> _pokedexListener(PokedexState state) async {
@@ -124,6 +115,15 @@ class _PokemonCardState extends State<PokemonCard> {
       context,
       MaterialPageRoute(builder: (context) => PokemonDetailsScreen(pokemonId)),
     );
+  }
+
+  Widget _getPokemonImg() {
+    return CachedNetworkImage(
+        imageUrl: _imageUrl + "$_dexNumber.gif",
+        fadeInDuration: Duration.zero,
+        placeholderFadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        placeholder: (context, url) => Image.asset("assets/loaders/roll.gif"));
   }
 
   @override

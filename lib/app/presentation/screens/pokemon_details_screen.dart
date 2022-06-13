@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pokedex/app/controllers/cubit/pokedex_cubit.dart';
-import 'package:flutter_pokedex/app/models/pokemon/pokemon_model.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_list_tile.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_move.dart';
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
@@ -43,16 +43,16 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
   int _selectedIndex = 0;
   List<int> ids = [];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   _PokemonDetailsScreenState(String pokemonDetailsScreenKey, int pokemonId) {
     _key = pokemonDetailsScreenKey;
     _pokemonId = pokemonId;
     _pokedexRepo = PokedexRepo();
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
@@ -65,18 +65,52 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
 
   Future<void> _afterBuild() async {}
 
-  // Future<void> _getPokemonBaseDetails(BuildContext context) async {
-  //   final pokedexCubit = BlocProvider.of<PokedexCubit>(context);
-  //   await pokedexCubit._getPokemonBaseDetails(_pokemonId, context);
-  // }
+  Future<void> _getPokemonDetails(BuildContext context) async {
+    final pokedexCubit = BlocProvider.of<PokedexCubit>(context);
+    await pokedexCubit.getPokemonDetailsById(_pokemonId, context);
+  }
 
-  Widget _getPokemonImg() {
-    return CachedNetworkImage(
-        imageUrl: _imageUrl + "$_pokemonId.png",
-        fadeInDuration: Duration.zero,
-        placeholderFadeInDuration: Duration.zero,
-        fadeOutDuration: Duration.zero,
-        placeholder: (context, url) => Image.asset("assets/loaders/roll.gif"));
+  Future<void> _pokedexListener(PokedexState state) async {
+    if (state is PokemonError) {
+      print("error");
+      print("${state.message}");
+    }
+
+    if (state is PokemonLoaded) {}
+  }
+
+  void _getPokemonMoveIds(String moveId) {
+    ids.add(int.parse(moveId
+        .replaceAll('https://pokeapi.co/api/v2/move/', '')
+        .replaceAll('/', '')));
+  }
+
+  int _getTotal(PokemonLoaded state) {
+    int total = 0;
+    for (var i in state.pokemon.stats) total += i.data!.baseStat;
+    return total;
+  }
+
+  String _getDexEntry(PokemonLoaded state) {
+    String _dexEntry = "";
+    for (var i in state.pokemonDetails!.flavorText) {
+      if (i.data!.language.data!.name == "en") {
+        _dexEntry = i.data!.flavorText;
+        return _dexEntry.replaceAll('\n', ' ').replaceAll('\f', ' ');
+      }
+    }
+    return _dexEntry.replaceAll('\n', ' ').replaceAll('\f', ' ');
+  }
+
+  String _getGenreType(PokemonLoaded state) {
+    String _genreType = "";
+    for (var i in state.pokemonDetails!.genre) {
+      if (i.data!.language.data!.name == "en") {
+        _genreType = i.data!.genus;
+        return _genreType;
+      }
+    }
+    return _genreType;
   }
 
   @override
@@ -105,44 +139,193 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
         ));
   }
 
-  Widget _getPokemonListTile(int id) {
-    return PokemonListTile(id, false);
-  }
-
-  Future<void> _getPokemonDetails(BuildContext context) async {
-    final pokedexCubit = BlocProvider.of<PokedexCubit>(context);
-    await pokedexCubit.getPokemonDetailsById(_pokemonId, context);
-  }
-
-  Future<void> _pokedexListener(PokedexState state) async {
-    if (state is PokemonError) {
-      print("error");
-      print("${state.message}");
-    }
-
-    if (state is PokemonLoaded) {}
-  }
-
-  String _getDexEntry(PokemonLoaded state) {
-    String _dexEntry = "";
-    for (var i in state.pokemonDetails!.flavorText) {
-      if (i.data!.language.data!.name == "en") {
-        _dexEntry = i.data!.flavorText;
-        return _dexEntry.replaceAll('\n', ' ').replaceAll('\f', ' ');
-      }
-    }
-    return _dexEntry.replaceAll('\n', ' ').replaceAll('\f', ' ');
-  }
-
-  String _getGenreType(PokemonLoaded state) {
-    String _genreType = "";
-    for (var i in state.pokemonDetails!.genre) {
-      if (i.data!.language.data!.name == "en") {
-        _genreType = i.data!.genus;
-        return _genreType;
-      }
-    }
-    return _genreType;
+  Widget _buildBody(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(8),
+      child: Center(
+          child: BlocConsumer<PokedexCubit, PokedexState>(
+        listener: (context, state) => _pokedexListener(state),
+        builder: (context, state) {
+          if (state is PokemonInitial) {
+            _getPokemonDetails(context);
+            return Column(
+              children: [
+                Container(
+                    height: MediaQuery.of(context).size.height * .25,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage("assets/backgrounds/grey.png")),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(500.0)),
+                    ),
+                    child: Image.asset("assets/loaders/roll.gif")),
+              ],
+            );
+          } else if (state is PokemonLoading) {
+            return Column(
+              children: [
+                Container(
+                    height: MediaQuery.of(context).size.height * .25,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage("assets/backgrounds/grey.png")),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(500.0)),
+                    ),
+                    child: Image.asset("assets/loaders/roll.gif")),
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(20.0)),
+                      border: Border.all(
+                        color: ConstValues.secondaryColor,
+                        width: 5.0,
+                      ),
+                    ),
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [Image.asset("assets/loaders/roll.gif")],
+                    ),
+                  ),
+                )
+              ],
+            );
+          } else if (state is PokemonLoaded) {
+            return Column(
+              children: [
+                Container(
+                    height: MediaQuery.of(context).size.height * .25,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage("assets/backgrounds/grey.png")),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(500.0)),
+                    ),
+                    child: _getPokemonImg()),
+                _getPokemonListTile(_pokemonId),
+                Expanded(
+                  child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: PokemonUtils.getLighterColorByType(
+                            PokemonUtils.getTypeEnum(state.pokemon.type1)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20.0)),
+                        border: Border.all(
+                          color: PokemonUtils.getColorByType(
+                              PokemonUtils.getTypeEnum(state.pokemon.type1)),
+                          width: 5.0,
+                        ),
+                      ),
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: SingleChildScrollView(
+                                child: Wrap(children: [_getContent(state)])),
+                          ),
+                          BottomNavigationBar(
+                              elevation: 0.0,
+                              type: BottomNavigationBarType.shifting,
+                              currentIndex: _selectedIndex, //New
+                              onTap: _onItemTapped,
+                              selectedItemColor: PokemonUtils.getColorByType(
+                                  PokemonUtils.getTypeEnum(
+                                      state.pokemon.type1)),
+                              items: [
+                                BottomNavigationBarItem(
+                                  label: "About",
+                                  activeIcon: Icon(Icons.account_circle,
+                                      color: PokemonUtils.getColorByType(
+                                          PokemonUtils.getTypeEnum(
+                                              state.pokemon.type1))),
+                                  icon: Icon(Icons.account_circle,
+                                      color: PokemonUtils.getColorByType(
+                                          PokemonUtils.getTypeEnum(
+                                              state.pokemon.type1))),
+                                  backgroundColor: Colors.transparent,
+                                ),
+                                BottomNavigationBarItem(
+                                  label: "Stats",
+                                  icon: Icon(Icons.stacked_bar_chart_sharp,
+                                      color: PokemonUtils.getColorByType(
+                                          PokemonUtils.getTypeEnum(
+                                              state.pokemon.type1))),
+                                  activeIcon: Icon(
+                                      Icons.stacked_bar_chart_sharp,
+                                      color: PokemonUtils.getColorByType(
+                                          PokemonUtils.getTypeEnum(
+                                              state.pokemon.type1))),
+                                  backgroundColor: Colors.transparent,
+                                ),
+                                BottomNavigationBarItem(
+                                  label: "Evolution",
+                                  icon: Icon(Icons.group_work,
+                                      color: PokemonUtils.getColorByType(
+                                          PokemonUtils.getTypeEnum(
+                                              state.pokemon.type1))),
+                                  activeIcon: Icon(Icons.group_work,
+                                      color: PokemonUtils.getColorByType(
+                                          PokemonUtils.getTypeEnum(
+                                              state.pokemon.type1))),
+                                  backgroundColor: Colors.transparent,
+                                ),
+                                BottomNavigationBarItem(
+                                  label: "Moves",
+                                  activeIcon: Icon(Icons.move_down_sharp,
+                                      color: PokemonUtils.getColorByType(
+                                          PokemonUtils.getTypeEnum(
+                                              state.pokemon.type1))),
+                                  icon: Icon(Icons.move_down_sharp,
+                                      color: PokemonUtils.getColorByType(
+                                          PokemonUtils.getTypeEnum(
+                                              state.pokemon.type1))),
+                                  backgroundColor: Colors.transparent,
+                                )
+                              ]),
+                        ],
+                      )),
+                )
+              ],
+            );
+          } else {
+            return Column(
+              children: [
+                Container(
+                    height: MediaQuery.of(context).size.height * .25,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage("assets/backgrounds/grey.png")),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(500.0)),
+                    ),
+                    child: _getPokemonImg()),
+                _getPokemonListTile(_pokemonId),
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(20.0)),
+                      border: Border.all(
+                        color: ConstValues.secondaryColor,
+                        width: 5.0,
+                      ),
+                    ),
+                    padding: EdgeInsets.all(16),
+                  ),
+                )
+              ],
+            );
+          }
+        },
+      )),
+    );
   }
 
   List<Widget> _getAbilities(PokemonLoaded state, TextStyle textStyle) {
@@ -157,6 +340,19 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
     }
 
     return abilities;
+  }
+
+  Widget _getPokemonImg() {
+    return CachedNetworkImage(
+        imageUrl: _imageUrl + "$_pokemonId.png",
+        fadeInDuration: Duration.zero,
+        placeholderFadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        placeholder: (context, url) => Image.asset("assets/loaders/roll.gif"));
+  }
+
+  Widget _getPokemonListTile(int id) {
+    return PokemonListTile(id, false);
   }
 
   Widget _getAboutContent(PokemonLoaded state) {
@@ -364,12 +560,6 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
         ]);
   }
 
-  int _getTotal(PokemonLoaded state) {
-    int total = 0;
-    for (var i in state.pokemon.stats) total += i.data!.baseStat;
-    return total;
-  }
-
   Widget _getStatsContent(PokemonLoaded state) {
     return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -478,12 +668,6 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
         children: [for (var i in finalIds) _getPokemonMoveCard(i)]);
   }
 
-  void _getPokemonMoveIds(String moveId) {
-    ids.add(int.parse(moveId
-        .replaceAll('https://pokeapi.co/api/v2/move/', '')
-        .replaceAll('/', '')));
-  }
-
   Widget _getPokemonMoveCard(int moveId) {
     return PokemonMoveCard(moveId);
   }
@@ -501,195 +685,6 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
       default:
         return _getAboutContent(state);
     }
-  }
-
-  Widget _buildBody(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8),
-      child: Center(
-          child: BlocConsumer<PokedexCubit, PokedexState>(
-        listener: (context, state) => _pokedexListener(state),
-        builder: (context, state) {
-          if (state is PokemonInitial) {
-            _getPokemonDetails(context);
-            return Column(
-              children: [
-                Container(
-                    height: MediaQuery.of(context).size.height * .25,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage("assets/backgrounds/grey.png")),
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(500.0)),
-                    ),
-                    child: Image.asset("assets/loaders/roll.gif")),
-              ],
-            );
-          } else if (state is PokemonLoading) {
-            return Column(
-              children: [
-                Container(
-                    height: MediaQuery.of(context).size.height * .25,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage("assets/backgrounds/grey.png")),
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(500.0)),
-                    ),
-                    child: Image.asset("assets/loaders/roll.gif")),
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(20.0)),
-                      border: Border.all(
-                        color: ConstValues.secondaryColor,
-                        width: 5.0,
-                      ),
-                    ),
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Image.asset("assets/loaders/roll.gif")],
-                    ),
-                  ),
-                )
-              ],
-            );
-          } else if (state is PokemonLoaded) {
-            return Column(
-              children: [
-                Container(
-                    height: MediaQuery.of(context).size.height * .25,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage("assets/backgrounds/grey.png")),
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(500.0)),
-                    ),
-                    child: _getPokemonImg()),
-                _getPokemonListTile(_pokemonId),
-                Expanded(
-                  child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: PokemonUtils.getLighterColorByType(
-                            PokemonUtils.getTypeEnum(state.pokemon.type1)),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(20.0)),
-                        border: Border.all(
-                          color: PokemonUtils.getColorByType(
-                              PokemonUtils.getTypeEnum(state.pokemon.type1)),
-                          width: 5.0,
-                        ),
-                      ),
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: SingleChildScrollView(
-                                child: Wrap(children: [_getContent(state)])),
-                          ),
-                          BottomNavigationBar(
-                              elevation: 0.0,
-                              type: BottomNavigationBarType.shifting,
-                              currentIndex: _selectedIndex, //New
-                              onTap: _onItemTapped,
-                              selectedItemColor: PokemonUtils.getColorByType(
-                                  PokemonUtils.getTypeEnum(
-                                      state.pokemon.type1)),
-                              items: [
-                                BottomNavigationBarItem(
-                                  label: "About",
-                                  activeIcon: Icon(Icons.account_circle,
-                                      color: PokemonUtils.getColorByType(
-                                          PokemonUtils.getTypeEnum(
-                                              state.pokemon.type1))),
-                                  icon: Icon(Icons.account_circle,
-                                      color: PokemonUtils.getColorByType(
-                                          PokemonUtils.getTypeEnum(
-                                              state.pokemon.type1))),
-                                  backgroundColor: Colors.transparent,
-                                ),
-                                BottomNavigationBarItem(
-                                  label: "Stats",
-                                  icon: Icon(Icons.stacked_bar_chart_sharp,
-                                      color: PokemonUtils.getColorByType(
-                                          PokemonUtils.getTypeEnum(
-                                              state.pokemon.type1))),
-                                  activeIcon: Icon(
-                                      Icons.stacked_bar_chart_sharp,
-                                      color: PokemonUtils.getColorByType(
-                                          PokemonUtils.getTypeEnum(
-                                              state.pokemon.type1))),
-                                  backgroundColor: Colors.transparent,
-                                ),
-                                BottomNavigationBarItem(
-                                  label: "Evolution",
-                                  icon: Icon(Icons.group_work,
-                                      color: PokemonUtils.getColorByType(
-                                          PokemonUtils.getTypeEnum(
-                                              state.pokemon.type1))),
-                                  activeIcon: Icon(Icons.group_work,
-                                      color: PokemonUtils.getColorByType(
-                                          PokemonUtils.getTypeEnum(
-                                              state.pokemon.type1))),
-                                  backgroundColor: Colors.transparent,
-                                ),
-                                BottomNavigationBarItem(
-                                  label: "Moves",
-                                  activeIcon: Icon(Icons.move_down_sharp,
-                                      color: PokemonUtils.getColorByType(
-                                          PokemonUtils.getTypeEnum(
-                                              state.pokemon.type1))),
-                                  icon: Icon(Icons.move_down_sharp,
-                                      color: PokemonUtils.getColorByType(
-                                          PokemonUtils.getTypeEnum(
-                                              state.pokemon.type1))),
-                                  backgroundColor: Colors.transparent,
-                                )
-                              ]),
-                        ],
-                      )),
-                )
-              ],
-            );
-          } else {
-            return Column(
-              children: [
-                Container(
-                    height: MediaQuery.of(context).size.height * .25,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage("assets/backgrounds/grey.png")),
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(500.0)),
-                    ),
-                    child: _getPokemonImg()),
-                _getPokemonListTile(_pokemonId),
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(20.0)),
-                      border: Border.all(
-                        color: ConstValues.secondaryColor,
-                        width: 5.0,
-                      ),
-                    ),
-                    padding: EdgeInsets.all(16),
-                  ),
-                )
-              ],
-            );
-          }
-        },
-      )),
-    );
   }
 
   @override
