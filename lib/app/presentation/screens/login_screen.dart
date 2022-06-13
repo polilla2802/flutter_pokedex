@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen>
 
       await Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => PokedexScreen()),
+        MaterialPageRoute(builder: (context) => PokedexScreen(false)),
       );
     }
   }
@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _getPokemonCard(int id) {
-    return PokemonListTile(id, true);
+    return PokemonListTile(id, true, false, false);
   }
 
   Widget _getPokemonError() {
