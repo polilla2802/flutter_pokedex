@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_pokedex/app/configuration/environment.dart';
 import 'package:flutter_pokedex/app/controllers/cubit/pokedex_cubit.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_list_tile.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_move.dart';
@@ -27,6 +28,7 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
   late PokedexRepo _pokedexRepo;
   late String _imageUrl =
       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/';
+
   TextStyle _titleStyle = TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 16,
@@ -352,7 +354,7 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
   }
 
   Widget _getPokemonListTile(int id) {
-    return PokemonListTile(id, false);
+    return PokemonListTile(id, false, false, false);
   }
 
   Widget _getAboutContent(PokemonLoaded state) {
@@ -651,10 +653,135 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
   }
 
   Widget _getEvolutionContent(PokemonLoaded state) {
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: []);
+    int stateParse = int.parse(state
+        .pokemonChain!.evolutionChain.data!.pokemonSpecie.data!.id
+        .replaceAll('https://pokeapi.co/api/v2/pokemon-species/', '')
+        .replaceAll('/', ''));
+    return Container(
+      height: 200,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (stateParse <= environment!.totalPokemon!)
+            Container(
+              padding: EdgeInsets.only(bottom: 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: state.pokemon.dexNumber == stateParse
+                        ? null
+                        : () async => {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        PokemonDetailsScreen(stateParse)),
+                              )
+                            },
+                    child: Container(
+                      child: Image.network(
+                        "$_imageUrl$stateParse.png",
+                        width: 80,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ..._getChain(state),
+          for (var i in state.pokemonChain!.evolutionChain.data!.pokemonLink)
+            for (var j in i.data!.pokemonLink)
+              if (int.parse(j.data!.pokemonSpecie.data!.id
+                      .replaceAll(
+                          'https://pokeapi.co/api/v2/pokemon-species/', '')
+                      .replaceAll('/', '')) <=
+                  environment!.totalPokemon!)
+                Container(
+                  padding: EdgeInsets.only(bottom: 16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      GestureDetector(
+                        onTap: state.pokemon.dexNumber ==
+                                int.parse(j.data!.pokemonSpecie.data!.id
+                                    .replaceAll(
+                                        'https://pokeapi.co/api/v2/pokemon-species/',
+                                        '')
+                                    .replaceAll('/', ''))
+                            ? null
+                            : () async => {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            PokemonDetailsScreen(int.parse(j
+                                                .data!.pokemonSpecie.data!.id
+                                                .replaceAll(
+                                                    'https://pokeapi.co/api/v2/pokemon-species/',
+                                                    '')
+                                                .replaceAll('/', '')))),
+                                  )
+                                },
+                        child: Container(
+                          child: Image.network(
+                            "$_imageUrl${int.parse(j.data!.pokemonSpecie.data!.id.replaceAll('https://pokeapi.co/api/v2/pokemon-species/', '').replaceAll('/', ''))}.png",
+                            width: 80,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _getChain(PokemonLoaded state) {
+    return [
+      for (var i in state.pokemonChain!.evolutionChain.data!.pokemonLink)
+        if (int.parse(i.data!.pokemonSpecie.data!.id
+                .replaceAll('https://pokeapi.co/api/v2/pokemon-species/', '')
+                .replaceAll('/', '')) <=
+            environment!.totalPokemon!)
+          Container(
+            padding: EdgeInsets.only(bottom: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                  onTap: state.pokemon.dexNumber ==
+                          int.parse(i.data!.pokemonSpecie.data!.id
+                              .replaceAll(
+                                  'https://pokeapi.co/api/v2/pokemon-species/',
+                                  '')
+                              .replaceAll('/', ''))
+                      ? null
+                      : () async => {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PokemonDetailsScreen(
+                                      int.parse(i.data!.pokemonSpecie.data!.id
+                                          .replaceAll(
+                                              'https://pokeapi.co/api/v2/pokemon-species/',
+                                              '')
+                                          .replaceAll('/', '')))),
+                            )
+                          },
+                  child: Container(
+                    child: Image.network(
+                      "$_imageUrl${int.parse(i.data!.pokemonSpecie.data!.id.replaceAll('https://pokeapi.co/api/v2/pokemon-species/', '').replaceAll('/', ''))}.png",
+                      width: 80,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+    ];
   }
 
   Widget _getMovesContent(PokemonLoaded state) {
