@@ -4,20 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pokedex/app/controllers/cubit/pokedex_cubit.dart';
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
+import 'package:flutter_pokedex/app/presentation/screens/pokemon_details_screen.dart';
 import 'package:flutter_pokedex/app/repos/pokedex_repo.dart';
 import 'package:flutter_pokedex/app/services/utils/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PokemonListTile extends StatefulWidget {
   final int pokemonId;
-
+  final bool interactive;
   const PokemonListTile(
-    this.pokemonId, {
+    this.pokemonId,
+    this.interactive, {
     Key? key,
   }) : super(key: key);
 
   @override
-  State<PokemonListTile> createState() => _PokemonListTileState(pokemonId);
+  State<PokemonListTile> createState() =>
+      _PokemonListTileState(pokemonId, interactive);
 }
 
 class _PokemonListTileState extends State<PokemonListTile> {
@@ -28,16 +31,15 @@ class _PokemonListTileState extends State<PokemonListTile> {
       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/';
   late String _type1 = "";
   String? _type2;
-
+  late bool _interactive;
   final EdgeInsetsGeometry buttonMargin =
       const EdgeInsets.only(top: 8, bottom: 8);
 
   late PokedexRepo _pokedexRepo;
 
-  _PokemonListTileState(
-    int pokemonId,
-  ) {
+  _PokemonListTileState(int pokemonId, bool interactive) {
     _dexNumber = pokemonId;
+    _interactive = interactive;
     _pokedexRepo = PokedexRepo();
   }
 
@@ -48,6 +50,8 @@ class _PokemonListTileState extends State<PokemonListTile> {
     WidgetsBinding.instance!
         .addPostFrameCallback((_) async => await _afterBuild());
   }
+
+  Future<void> _afterBuild() async {}
 
   Future<void> _checkLoaded() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -64,19 +68,8 @@ class _PokemonListTileState extends State<PokemonListTile> {
     }
   }
 
-  Future<void> _afterBuild() async {}
-
-  Widget _getPokemonImg() {
-    return CachedNetworkImage(
-        imageUrl: _imageUrl + "$_dexNumber.gif",
-        fadeInDuration: Duration.zero,
-        placeholderFadeInDuration: Duration.zero,
-        fadeOutDuration: Duration.zero,
-        placeholder: (context, url) => Image.asset("assets/loader/roll.gif"));
-  }
-
   Future<void> _pokedexListener(PokedexState state) async {
-    if (state is PokedexError) {
+    if (state is PokemonError) {
       print("error");
       print("${state.message}");
     }
@@ -113,9 +106,25 @@ class _PokemonListTileState extends State<PokemonListTile> {
     }
   }
 
-  Future<void> _getPokemonById(int pokemonCount, BuildContext context) async {
+  Future<void> _getPokemonById(int pokemonId, BuildContext context) async {
     final pokedexCubit = BlocProvider.of<PokedexCubit>(context);
-    await pokedexCubit.getPokemonById(pokemonCount, context);
+    await pokedexCubit.getPokemonById(pokemonId, context);
+  }
+
+  Future<void> _pokemonCardDetails(int pokemonId) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PokemonDetailsScreen(pokemonId)),
+    );
+  }
+
+  Widget _getPokemonImg() {
+    return CachedNetworkImage(
+        imageUrl: _imageUrl + "$_dexNumber.gif",
+        fadeInDuration: Duration.zero,
+        placeholderFadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        placeholder: (context, url) => Image.asset("assets/loaders/roll.gif"));
   }
 
   @override
@@ -124,7 +133,8 @@ class _PokemonListTileState extends State<PokemonListTile> {
       return Container(
           margin: buttonMargin,
           child: GestureDetector(
-            onTap: () {},
+            onTap: () async =>
+                _interactive ? _pokemonCardDetails(_dexNumber) : null,
             child: Column(children: [
               Container(
                 padding: const EdgeInsets.only(top: 8, right: 16, left: 16),
@@ -254,7 +264,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
             child: BlocConsumer<PokedexCubit, PokedexState>(
               listener: (context, state) => _pokedexListener(state),
               builder: (context, state) {
-                if (state is PokedexInitial) {
+                if (state is PokemonInitial) {
                   _getPokemonById(_dexNumber, context);
                   return GestureDetector(
                     onTap: () {},
@@ -263,7 +273,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
                         padding:
                             const EdgeInsets.only(top: 8, right: 16, left: 16),
                         decoration: BoxDecoration(
-                            color: ConstValues.secondaryColor,
+                            color: Colors.grey,
                             borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(10),
                                 topRight: Radius.circular(10))),
@@ -291,7 +301,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
                         padding: const EdgeInsets.only(
                             top: 3, bottom: 3, right: 3, left: 3),
                         decoration: BoxDecoration(
-                            color: ConstValues.secondaryColor,
+                            color: Colors.grey,
                             borderRadius: const BorderRadius.only(
                                 bottomLeft: Radius.circular(10),
                                 bottomRight: Radius.circular(10))),
@@ -320,19 +330,15 @@ class _PokemonListTileState extends State<PokemonListTile> {
                                             child: Container(
                                               width: 50,
                                               child: Image.asset(
-                                                  "assets/loader/roll.gif"),
+                                                  "assets/loaders/roll.gif"),
                                               decoration: BoxDecoration(
-                                                color:
-                                                    ConstValues.secondaryColor,
+                                                color: Colors.grey,
                                                 borderRadius:
                                                     const BorderRadius.all(
                                                         Radius.circular(50.0)),
                                                 border: Border.all(
-                                                  color: PokemonUtils
-                                                      .getColorByType(
-                                                          PokemonUtils
-                                                              .getTypeEnum(
-                                                                  _type1)),
+                                                  color: ConstValues
+                                                      .secondaryColor,
                                                   width: 3.0,
                                                 ),
                                               ),
@@ -360,7 +366,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
                       ),
                     ]),
                   );
-                } else if (state is PokedexLoading) {
+                } else if (state is PokemonLoading) {
                   return GestureDetector(
                     onTap: () {},
                     child: Column(children: [
@@ -368,7 +374,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
                         padding:
                             const EdgeInsets.only(top: 8, right: 16, left: 16),
                         decoration: BoxDecoration(
-                            color: ConstValues.secondaryColor,
+                            color: Colors.grey,
                             borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(10),
                                 topRight: Radius.circular(10))),
@@ -396,7 +402,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
                         padding: const EdgeInsets.only(
                             top: 3, bottom: 3, right: 3, left: 3),
                         decoration: BoxDecoration(
-                            color: ConstValues.secondaryColor,
+                            color: Colors.grey,
                             borderRadius: const BorderRadius.only(
                                 bottomLeft: Radius.circular(10),
                                 bottomRight: Radius.circular(10))),
@@ -425,19 +431,15 @@ class _PokemonListTileState extends State<PokemonListTile> {
                                             child: Container(
                                               width: 50,
                                               child: Image.asset(
-                                                  "assets/loader/roll.gif"),
+                                                  "assets/loaders/roll.gif"),
                                               decoration: BoxDecoration(
-                                                color:
-                                                    ConstValues.secondaryColor,
+                                                color: Colors.grey,
                                                 borderRadius:
                                                     const BorderRadius.all(
                                                         Radius.circular(50.0)),
                                                 border: Border.all(
-                                                  color: PokemonUtils
-                                                      .getColorByType(
-                                                          PokemonUtils
-                                                              .getTypeEnum(
-                                                                  _type1)),
+                                                  color: ConstValues
+                                                      .secondaryColor,
                                                   width: 3.0,
                                                 ),
                                               ),
@@ -467,7 +469,8 @@ class _PokemonListTileState extends State<PokemonListTile> {
                   );
                 } else if (state is PokemonLoaded) {
                   return GestureDetector(
-                    onTap: () {},
+                    onTap: () async =>
+                        _interactive ? _pokemonCardDetails(_dexNumber) : null,
                     child: Column(children: [
                       Container(
                         padding:
@@ -615,7 +618,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
                         padding:
                             const EdgeInsets.only(top: 8, right: 16, left: 16),
                         decoration: BoxDecoration(
-                            color: ConstValues.secondaryColor,
+                            color: Colors.grey,
                             borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(10),
                                 topRight: Radius.circular(10))),
@@ -643,7 +646,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
                         padding: const EdgeInsets.only(
                             top: 3, bottom: 3, right: 3, left: 3),
                         decoration: BoxDecoration(
-                            color: ConstValues.secondaryColor,
+                            color: Colors.grey,
                             borderRadius: const BorderRadius.only(
                                 bottomLeft: Radius.circular(10),
                                 bottomRight: Radius.circular(10))),
@@ -672,19 +675,15 @@ class _PokemonListTileState extends State<PokemonListTile> {
                                             child: Container(
                                               width: 50,
                                               child: Image.asset(
-                                                  "assets/loader/roll.gif"),
+                                                  "assets/loaders/roll.gif"),
                                               decoration: BoxDecoration(
-                                                color:
-                                                    ConstValues.secondaryColor,
+                                                color: Colors.grey,
                                                 borderRadius:
                                                     const BorderRadius.all(
                                                         Radius.circular(50.0)),
                                                 border: Border.all(
-                                                  color: PokemonUtils
-                                                      .getColorByType(
-                                                          PokemonUtils
-                                                              .getTypeEnum(
-                                                                  _type1)),
+                                                  color: ConstValues
+                                                      .secondaryColor,
                                                   width: 3.0,
                                                 ),
                                               ),
