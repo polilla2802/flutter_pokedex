@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/app/models/pokemon/pokemon_model.dart';
+import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 
 enum Type {
   normal,
@@ -171,11 +172,11 @@ extension PokemonUtils on Pokemon {
       case Type.fairy:
         return Colors.pink.shade200;
       case Type.unknown:
-        return Colors.black;
+        return ConstValues.secondaryColor;
       case Type.shadow:
-        return Colors.black;
+        return ConstValues.secondaryColor;
       default:
-        return Colors.black;
+        return ConstValues.secondaryColor;
     }
   }
 
