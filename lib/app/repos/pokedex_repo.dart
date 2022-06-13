@@ -59,4 +59,20 @@ class PokedexRepo {
       return Result.fail(BaseException(true, error: e.toString()));
     }
   }
+
+  Future<Result<PokemonChain>> getPokemonEvolutionById(int pokemonId) async {
+    try {
+      final ApiResult apiResponse =
+          await this._pokedexProvider.getPokemonEvolutionById(pokemonId);
+
+      if (apiResponse.hasData()) return PokemonChain.fromJson(apiResponse.data);
+
+      if (apiResponse.isException())
+        return Result.apiFail(apiResponse.exception);
+
+      return Result.fail(BaseException(true));
+    } catch (e) {
+      return Result.fail(BaseException(true, error: e.toString()));
+    }
+  }
 }

@@ -22,7 +22,15 @@ class PokedexProvider {
   }
 
   Future<ApiResult> getPokemonMoveById(int pokemonMoveId) async {
-    return await _api.get(ApiRequest(ApiChannel.pokedex, "getPokemonSpecieById",
+    return await _api.get(ApiRequest(ApiChannel.pokedex, "getPokemonMoveById",
         "/move/$pokemonMoveId", AuthType.none));
+  }
+
+  Future<ApiResult> getPokemonEvolutionById(int pokemonMoveId) async {
+    return await _api.get(ApiRequest(
+        ApiChannel.pokedex,
+        "getPokemonEvolutionById",
+        "/evolution-chain/$pokemonMoveId",
+        AuthType.none));
   }
 }
