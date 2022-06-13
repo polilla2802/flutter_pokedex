@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PokemonCard extends StatefulWidget {
   final int pokemonId;
-
   const PokemonCard(
     this.pokemonId, {
     Key? key,
@@ -35,9 +34,7 @@ class _PokemonCardState extends State<PokemonCard> {
 
   late PokedexRepo _pokedexRepo;
 
-  _PokemonCardState(
-    int pokemonId,
-  ) {
+  _PokemonCardState(int pokemonId) {
     _dexNumber = pokemonId;
     _pokedexRepo = PokedexRepo();
   }
@@ -405,7 +402,8 @@ class _PokemonCardState extends State<PokemonCard> {
                               children: [
                                 Container(
                                   child: Text(
-                                    PokemonUtils.toDexNumber(_dexNumber),
+                                    PokemonUtils.toDexNumber(
+                                        state.pokemon.dexNumber),
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 14,
@@ -495,8 +493,7 @@ class _PokemonCardState extends State<PokemonCard> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    color: PokemonUtils.getColorByType(
-                        PokemonUtils.getTypeEnum(_type1)),
+                    color: Colors.grey,
                     child: Container(
                       padding: EdgeInsets.all(16),
                       child: Column(
