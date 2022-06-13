@@ -26,4 +26,37 @@ class PokedexRepo {
       return Result.fail(BaseException(true, error: e.toString()));
     }
   }
+
+  Future<Result<PokemonDetails>> getPokemonDetailsById(int pokemonId) async {
+    try {
+      final ApiResult apiResponse =
+          await this._pokedexProvider.getPokemonSpecieById(pokemonId);
+
+      if (apiResponse.hasData())
+        return PokemonDetails.fromJson(apiResponse.data);
+
+      if (apiResponse.isException())
+        return Result.apiFail(apiResponse.exception);
+
+      return Result.fail(BaseException(true));
+    } catch (e) {
+      return Result.fail(BaseException(true, error: e.toString()));
+    }
+  }
+
+  Future<Result<PokemonMove>> getPokemonMoveById(int pokemonMoveId) async {
+    try {
+      final ApiResult apiResponse =
+          await this._pokedexProvider.getPokemonMoveById(pokemonMoveId);
+
+      if (apiResponse.hasData()) return PokemonMove.fromJson(apiResponse.data);
+
+      if (apiResponse.isException())
+        return Result.apiFail(apiResponse.exception);
+
+      return Result.fail(BaseException(true));
+    } catch (e) {
+      return Result.fail(BaseException(true, error: e.toString()));
+    }
+  }
 }
