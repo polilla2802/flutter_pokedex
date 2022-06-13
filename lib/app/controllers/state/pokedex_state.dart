@@ -5,23 +5,23 @@ abstract class PokedexState {
   const PokedexState();
 }
 
-class PokedexInitial extends PokedexState {
-  const PokedexInitial();
+class PokemonInitial extends PokedexState {
+  const PokemonInitial();
 }
 
-class PokedexLoading extends PokedexState {
-  const PokedexLoading();
+class PokemonLoading extends PokedexState {
+  const PokemonLoading();
 }
 
-class PokedexLoaded extends PokedexState {
+class PokemonCount extends PokedexState {
   final int pokemonCount;
-  const PokedexLoaded(this.pokemonCount);
+  const PokemonCount(this.pokemonCount);
 
   @override
   bool operator ==(Object o) {
     if (identical(this, o)) return true;
 
-    return o is PokedexLoaded && o.pokemonCount == pokemonCount;
+    return o is PokemonCount && o.pokemonCount == pokemonCount;
   }
 
   @override
@@ -30,7 +30,8 @@ class PokedexLoaded extends PokedexState {
 
 class PokemonLoaded extends PokedexState {
   final Pokemon pokemon;
-  const PokemonLoaded(this.pokemon);
+  final PokemonDetails? pokemonDetails;
+  const PokemonLoaded(this.pokemon, {this.pokemonDetails});
 
   @override
   bool operator ==(Object o) {
@@ -43,15 +44,30 @@ class PokemonLoaded extends PokedexState {
   int get hashCode => pokemon.hashCode;
 }
 
-class PokedexError extends PokedexState {
-  final String? message;
-  const PokedexError(this.message);
+class PokemonMoveLoaded extends PokedexState {
+  final PokemonMove pokemonMove;
+  const PokemonMoveLoaded(this.pokemonMove);
 
   @override
   bool operator ==(Object o) {
     if (identical(this, o)) return true;
 
-    return o is PokedexError && o.message == message;
+    return o is PokemonMoveLoaded && o.pokemonMove == pokemonMove;
+  }
+
+  @override
+  int get hashCode => pokemonMove.hashCode;
+}
+
+class PokemonError extends PokedexState {
+  final String? message;
+  const PokemonError(this.message);
+
+  @override
+  bool operator ==(Object o) {
+    if (identical(this, o)) return true;
+
+    return o is PokemonError && o.message == message;
   }
 
   @override
