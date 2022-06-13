@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pokedex/app/configuration/environment.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_card.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_list_tile.dart';
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 import 'package:flutter_pokedex/app/presentation/screens/login_screen.dart';
+import 'package:flutter_pokedex/app/presentation/screens/teams_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PokedexScreen extends StatefulWidget {
   static const String pokedexScreenKey = "/pokedex_screen";
+  final bool selectable;
 
-  const PokedexScreen({Key? key}) : super(key: key);
+  const PokedexScreen(this.selectable, {Key? key}) : super(key: key);
 
   @override
-  State<PokedexScreen> createState() => _PokedexScreenState(pokedexScreenKey);
+  State<PokedexScreen> createState() =>
+      _PokedexScreenState(pokedexScreenKey, selectable);
 }
 
 class _PokedexScreenState extends State<PokedexScreen> {
@@ -20,10 +24,13 @@ class _PokedexScreenState extends State<PokedexScreen> {
   late ScrollController _scrollController;
   late int _pokemonCount = 10;
   late bool _listView = false;
-  late bool _selectPokemon = false;
+  late bool _selectable = false;
+  late List<int> _selected = [];
 
-  _PokedexScreenState(String pokedexScreenKey) {
+  _PokedexScreenState(String pokedexScreenKey, bool selectable) {
     _key = pokedexScreenKey;
+    _selectable = selectable;
+    _listView = _selectable;
     _scrollController = ScrollController();
   }
 
@@ -36,28 +43,28 @@ class _PokedexScreenState extends State<PokedexScreen> {
         .addPostFrameCallback((_) async => await _afterBuild());
   }
 
-  Future<void> _getUser() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userName = prefs.getString("UserName")!;
-      print("_userName $_userName");
-    });
-  }
-
   Future<void> _afterBuild() async {
     await _getUser();
   }
 
-  Future<void> _pokemonCardDetails() async {
-    //TODO: implement pokemon details screen
+  Future<void> _getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString("UserName")!;
+      _listView = prefs.getBool("ListView") ?? false;
+      _selectable ? _listView = true : _listView = _listView;
+      print("_userName $_userName");
+    });
+  }
 
-    // await Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //       builder: (context) => PokemonDetailsScreen(
-    //             userName: token,
-    //           )),
-    // );
+  Future<void> _setListView() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var done = await prefs.setBool("ListView", !_listView);
+
+    if (done) print('[$_key] ListView saved to $_listView');
+    setState(() {
+      _listView = !_listView;
+    });
   }
 
   Future<void> _logOut() async {
@@ -70,6 +77,19 @@ class _PokedexScreenState extends State<PokedexScreen> {
         builder: (context) => LoginScreen()));
   }
 
+  Future<void> _toTeamsScreenReplacement() async {
+    await Navigator.of(context).pushReplacement(MaterialPageRoute(
+        settings: const RouteSettings(name: TeamsScreen.teamsScreenKey),
+        builder: (context) => TeamsScreen(team: _selected)));
+  }
+
+  Future<void> _toTeamsScreenPush() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => TeamsScreen()),
+    );
+  }
+
   void _scrollListener() {
     _scrollController.addListener(() {
       if (_scrollController.position.maxScrollExtent ==
@@ -78,7 +98,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
         //adding more pokemon
         print("reached bottom");
 
-        if (_pokemonCount < 150) {
+        if (_pokemonCount < environment!.totalPokemon!) {
           setState(() {
             _pokemonCount = _pokemonCount + 10;
           });
@@ -92,48 +112,71 @@ class _PokedexScreenState extends State<PokedexScreen> {
     });
   }
 
+  void _addPokemon(int value) {
+    setState(() {
+      _selected.add(value);
+    });
+    if (_selected.length == 6) {
+      _toTeamsScreenReplacement();
+    }
+  }
+
+  void _resPokemon(int value) {
+    setState(() {
+      _selected.remove(value);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: () async {
+          if (_selectable) {
+            return true;
+          }
           return false;
         },
         child: Scaffold(
-            appBar: _selectPokemon
+            appBar: _selectable
                 ? AppBar(
-                    backgroundColor: _selectPokemon
+                    backgroundColor: _selectable
                         ? ConstValues.primaryColor
                         : ConstValues.secondaryColor,
                     leading: Container(),
                     title: Container(
                       width: double.infinity,
                       child: Text(
-                        "Select Team",
+                        _selected.length == 0
+                            ? "Select Team"
+                            : _selected.length.toString(),
                         textAlign: TextAlign.center,
                       ),
                     ),
                     actions: [
-                      GestureDetector(
-                          onTap: () => _logOut(),
-                          child: Container(
+                      _selected.length == 6
+                          ? GestureDetector(
+                              onTap: () => _toTeamsScreenReplacement(),
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
+                                child: Icon(Icons.check, color: Colors.white),
+                              ))
+                          : GestureDetector(
+                              child: Container(
                               alignment: Alignment.center,
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16),
-                              child: Icon(
-                                Icons.logout,
-                                color: Colors.white,
-                              )))
+                            ))
                     ],
                   )
                 : AppBar(
-                    backgroundColor: _selectPokemon
+                    backgroundColor: _selectable
                         ? ConstValues.primaryColor
                         : ConstValues.secondaryColor,
                     leading: _listView
                         ? GestureDetector(
-                            onTap: () => setState(() {
-                                  _listView = !_listView;
-                                }),
+                            onTap: () => _setListView(),
                             child: Container(
                               child: Icon(
                                 Icons.grid_view,
@@ -141,9 +184,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
                               ),
                             ))
                         : GestureDetector(
-                            onTap: () => setState(() {
-                                  _listView = !_listView;
-                                }),
+                            onTap: () => _setListView(),
                             child: Container(
                               child: Icon(
                                 Icons.list,
@@ -171,7 +212,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
                     ],
                   ),
             body: _buildBody(),
-            floatingActionButton: _floatingButton()));
+            floatingActionButton: _selectable ? null : _floatingButton()));
   }
 
   Widget _buildBody() {
@@ -208,7 +249,9 @@ class _PokedexScreenState extends State<PokedexScreen> {
   }
 
   Widget _getPokemonListTile(int id) {
-    return PokemonListTile(id, true);
+    return PokemonListTile(id, true, _selectable, false,
+        addPokemon: (int val) => _addPokemon(val),
+        resPokemon: (int val) => _resPokemon(val));
   }
 
   Widget _getPokemonCard(int id) {
@@ -216,23 +259,11 @@ class _PokedexScreenState extends State<PokedexScreen> {
   }
 
   Widget _floatingButton() {
-    if (_selectPokemon == false) {
-      return FloatingActionButton(
-        onPressed: () => setState(() {
-          _selectPokemon = !_selectPokemon;
-        }),
-        backgroundColor: ConstValues.primaryColor,
-        child: const Icon(Icons.add),
-      );
-    } else {
-      return FloatingActionButton(
-        onPressed: () => setState(() {
-          _selectPokemon = !_selectPokemon;
-        }),
-        backgroundColor: ConstValues.secondaryColor,
-        child: const Icon(Icons.close),
-      );
-    }
+    return FloatingActionButton(
+      onPressed: () async => {_toTeamsScreenPush()},
+      backgroundColor: ConstValues.primaryColor,
+      child: const Icon(Icons.menu),
+    );
   }
 
   @override
