@@ -63,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen> {
       alignment: Alignment.center,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [Image.asset("assets/loader/poke.gif")],
+        children: [Image.asset("assets/loaders/poke.gif")],
       ),
     );
   }

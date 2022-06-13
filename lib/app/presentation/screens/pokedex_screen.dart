@@ -208,7 +208,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
   }
 
   Widget _getPokemonListTile(int id) {
-    return PokemonListTile(id);
+    return PokemonListTile(id, true);
   }
 
   Widget _getPokemonCard(int id) {
