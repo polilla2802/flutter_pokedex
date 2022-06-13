@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       await Navigator.of(context).pushReplacement(MaterialPageRoute(
           settings: const RouteSettings(name: PokedexScreen.pokedexScreenKey),
-          builder: (context) => PokedexScreen()));
+          builder: (context) => PokedexScreen(false)));
     }
   }
 
