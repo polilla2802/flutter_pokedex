@@ -76,11 +76,58 @@ extension PokemonUtils on Pokemon {
       case Type.fairy:
         return "assets/types/fairy.png";
       case Type.unknown:
-        return "assets/types/unknown.png";
+        return "assets/types/ghost.png";
       case Type.shadow:
         return "assets/types/ghost.png";
       default:
-        return "assets/types/unknown.png";
+        return "assets/types/ghost.png";
+    }
+  }
+
+  static String getMoveImageByType(Type type) {
+    switch (type) {
+      case Type.normal:
+        return "assets/move_types/POKEMON_TYPE_NORMAL_BORDERED.png";
+      case Type.fighting:
+        return "assets/move_types/POKEMON_TYPE_FIGHTING_BORDERED.png";
+      case Type.flying:
+        return "assets/move_types/POKEMON_TYPE_FLYING_BORDERED.png";
+      case Type.poison:
+        return "assets/move_types/POKEMON_TYPE_POISON_BORDERED.png";
+      case Type.ground:
+        return "assets/move_types/POKEMON_TYPE_GROUND_BORDERED.png";
+      case Type.rock:
+        return "assets/move_types/POKEMON_TYPE_ROCK_BORDERED.png";
+      case Type.bug:
+        return "assets/move_types/POKEMON_TYPE_BUG_BORDERED.png";
+      case Type.ghost:
+        return "assets/move_types/POKEMON_TYPE_GHOST_BORDERED.png";
+      case Type.steel:
+        return "assets/move_types/POKEMON_TYPE_STEEL_BORDERED.png";
+      case Type.fire:
+        return "assets/move_types/POKEMON_TYPE_FIRE_BORDERED.png";
+      case Type.water:
+        return "assets/move_types/POKEMON_TYPE_WATER_BORDERED.png";
+      case Type.grass:
+        return "assets/move_types/POKEMON_TYPE_GRASS_BORDERED.png";
+      case Type.electric:
+        return "assets/move_types/POKEMON_TYPE_ELECTRIC_BORDERED.png";
+      case Type.psychic:
+        return "assets/move_types/POKEMON_TYPE_PSYCHIC_BORDERED.png";
+      case Type.ice:
+        return "assets/move_types/POKEMON_TYPE_ICE_BORDERED.png";
+      case Type.dragon:
+        return "assets/move_types/POKEMON_TYPE_DRAGON_BORDERED.png";
+      case Type.dark:
+        return "assets/move_types/POKEMON_TYPE_DARK_BORDERED.png";
+      case Type.fairy:
+        return "assets/move_types/POKEMON_TYPE_FAIRY_BORDERED.png";
+      case Type.unknown:
+        return "assets/move_types/POKEMON_TYPE_GHOST_BORDERED.png";
+      case Type.shadow:
+        return "assets/move_types/POKEMON_TYPE_GHOST_BORDERED.png";
+      default:
+        return "assets/move_types/POKEMON_TYPE_GHOST_BORDERED.png";
     }
   }
 

@@ -75,12 +75,15 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icons/playstore.png
-    - assets/loader/poke.gif
-    - assets/loader/pokeball.gif
-    - assets/loader/roll.gif
+    - assets/loaders/poke.gif
+    - assets/loaders/pokeball.gif
+    - assets/loaders/roll.gif
     - assets/pokeballs/pixel.png
     - assets/pokeballs/3d.png
     - assets/pokeballs/open.png
+    - assets/backgrounds/poke-bg.png
+    - assets/backgrounds/45-grey.png
+    - assets/backgrounds/grey.png
     - assets/types/normal.png
     - assets/types/fighting.png
     - assets/types/flying.png
@@ -99,7 +102,25 @@ flutter:
     - assets/types/dragon.png
     - assets/types/dark.png
     - assets/types/fairy.png
-
+    - assets/move_types/POKEMON_TYPE_BUG_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_DARK_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_DRAGON_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_ELECTRIC_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_FAIRY_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_FIGHTING_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_FIRE_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_FLYING_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_GHOST_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_GRASS_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_GROUND_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_ICE_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_NORMAL_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_POISON_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_PSYCHIC_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_ROCK_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_STEEL_BORDERED.png
+    - assets/move_types/POKEMON_TYPE_WATER_BORDERED.png
+    
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
