@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pokedex/app/controllers/cubit/pokedex_cubit.dart';
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
+import 'package:flutter_pokedex/app/presentation/screens/pokemon_details_screen.dart';
 import 'package:flutter_pokedex/app/repos/pokedex_repo.dart';
 import 'package:flutter_pokedex/app/services/utils/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -72,11 +73,11 @@ class _PokemonCardState extends State<PokemonCard> {
         fadeInDuration: Duration.zero,
         placeholderFadeInDuration: Duration.zero,
         fadeOutDuration: Duration.zero,
-        placeholder: (context, url) => Image.asset("assets/loader/roll.gif"));
+        placeholder: (context, url) => Image.asset("assets/loaders/roll.gif"));
   }
 
   Future<void> _pokedexListener(PokedexState state) async {
-    if (state is PokedexError) {
+    if (state is PokemonError) {
       print("error");
       print("${state.message}");
     }
@@ -118,12 +119,19 @@ class _PokemonCardState extends State<PokemonCard> {
     await pokedexCubit.getPokemonById(pokemonCount, context);
   }
 
+  Future<void> _pokemonCardDetails(int pokemonId) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PokemonDetailsScreen(pokemonId)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_saved) {
       return Container(
           child: GestureDetector(
-        onTap: () {},
+        onTap: () async => _pokemonCardDetails(_dexNumber),
         child: Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
@@ -204,7 +212,7 @@ class _PokemonCardState extends State<PokemonCard> {
                                 border: Border.all(
                                   color: PokemonUtils.getColorByType(
                                       PokemonUtils.getTypeEnum(_type1)),
-                                  width: 5.0,
+                                  width: 3.0,
                                 ),
                               ),
                             ),
@@ -224,7 +232,7 @@ class _PokemonCardState extends State<PokemonCard> {
         child: BlocConsumer<PokedexCubit, PokedexState>(
           listener: (context, state) => _pokedexListener(state),
           builder: (context, state) {
-            if (state is PokedexInitial) {
+            if (state is PokemonInitial) {
               _getPokemonById(_dexNumber, context);
               return Container(
                   child: GestureDetector(
@@ -233,8 +241,7 @@ class _PokemonCardState extends State<PokemonCard> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    color: PokemonUtils.getColorByType(
-                        PokemonUtils.getTypeEnum(_type1)),
+                    color: Colors.grey,
                     child: Container(
                       padding: EdgeInsets.all(16),
                       child: Column(
@@ -278,16 +285,17 @@ class _PokemonCardState extends State<PokemonCard> {
                                     filter: ImageFilter.blur(
                                         sigmaX: 2.0, sigmaY: 2.0),
                                     child: Container(
-                                      width: 50,
-                                      child:
-                                          Image.asset("assets/loader/roll.gif"),
+                                      width: 70,
+                                      height: 70,
+                                      child: Image.asset(
+                                          "assets/loaders/roll.gif"),
                                       decoration: BoxDecoration(
                                         color: Colors.grey.shade100,
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(50.0)),
                                         border: Border.all(
                                           color: ConstValues.secondaryColor,
-                                          width: 5.0,
+                                          width: 3.0,
                                         ),
                                       ),
                                     ),
@@ -300,7 +308,7 @@ class _PokemonCardState extends State<PokemonCard> {
                       ),
                     )),
               ));
-            } else if (state is PokedexLoading) {
+            } else if (state is PokemonLoading) {
               return Container(
                   child: GestureDetector(
                 onTap: () {},
@@ -308,8 +316,7 @@ class _PokemonCardState extends State<PokemonCard> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    color: PokemonUtils.getColorByType(
-                        PokemonUtils.getTypeEnum(_type1)),
+                    color: Colors.grey,
                     child: Container(
                       padding: EdgeInsets.all(16),
                       child: Column(
@@ -353,16 +360,17 @@ class _PokemonCardState extends State<PokemonCard> {
                                     filter: ImageFilter.blur(
                                         sigmaX: 2.0, sigmaY: 2.0),
                                     child: Container(
-                                      width: 50,
-                                      child:
-                                          Image.asset("assets/loader/roll.gif"),
+                                      width: 70,
+                                      height: 70,
+                                      child: Image.asset(
+                                          "assets/loaders/roll.gif"),
                                       decoration: BoxDecoration(
                                         color: Colors.grey.shade100,
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(50.0)),
                                         border: Border.all(
                                           color: ConstValues.secondaryColor,
-                                          width: 5.0,
+                                          width: 3.0,
                                         ),
                                       ),
                                     ),
@@ -378,7 +386,7 @@ class _PokemonCardState extends State<PokemonCard> {
             } else if (state is PokemonLoaded) {
               return Container(
                   child: GestureDetector(
-                onTap: () {},
+                onTap: () async => _pokemonCardDetails(state.pokemon.dexNumber),
                 child: Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -466,7 +474,7 @@ class _PokemonCardState extends State<PokemonCard> {
                                           color: PokemonUtils.getColorByType(
                                               PokemonUtils.getTypeEnum(
                                                   state.pokemon.type1)),
-                                          width: 5.0,
+                                          width: 3.0,
                                         ),
                                       ),
                                     ),
@@ -532,16 +540,17 @@ class _PokemonCardState extends State<PokemonCard> {
                                     filter: ImageFilter.blur(
                                         sigmaX: 2.0, sigmaY: 2.0),
                                     child: Container(
-                                      width: 50,
-                                      child:
-                                          Image.asset("assets/loader/roll.gif"),
+                                      width: 70,
+                                      height: 70,
+                                      child: Image.asset(
+                                          "assets/loaders/roll.gif"),
                                       decoration: BoxDecoration(
                                         color: Colors.grey.shade100,
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(50.0)),
                                         border: Border.all(
                                           color: ConstValues.secondaryColor,
-                                          width: 5.0,
+                                          width: 3.0,
                                         ),
                                       ),
                                     ),
