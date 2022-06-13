@@ -7,6 +7,7 @@ import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_list_t
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 import 'package:flutter_pokedex/app/presentation/components/form/input.dart';
 import 'package:flutter_pokedex/app/presentation/screens/pokedex_screen.dart';
+import 'package:flutter_pokedex/app/presentation/screens/pokemon_details_screen.dart';
 import 'package:flutter_pokedex/app/repos/pokedex_repo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -82,6 +83,13 @@ class _LoginScreenState extends State<LoginScreen>
     await _getPokemonCount(context);
   }
 
+  Future<void> _pokedexListener(PokedexState state) async {
+    if (state is PokemonError) {
+      print("error");
+      print("${state.message}");
+    }
+  }
+
   void _initializeAnimationController() {
     _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 2));
@@ -117,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _getPokemonCard(int id) {
-    return PokemonListTile(id);
+    return PokemonListTile(id, true);
   }
 
   Widget _getPokemonError() {
@@ -127,24 +135,16 @@ class _LoginScreenState extends State<LoginScreen>
   Widget _buildBody(BuildContext context) {
     return Center(
         child: BlocConsumer<PokedexCubit, PokedexState>(
-      listener: (context, state) {
-        if (state is PokedexError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message!),
-            ),
-          );
-        }
-      },
+      listener: (context, state) => _pokedexListener(state),
       builder: (context, state) {
-        if (state is PokedexInitial) {
+        if (state is PokemonInitial) {
           return Column(
             children: [
               GestureDetector(
                 onTap: () async => await _pokeballTap(context),
                 child: Container(
                   color: ConstValues.myRedColor,
-                  child: Image.asset("assets/loader/pokeball.gif"),
+                  child: Image.asset("assets/loaders/pokeball.gif"),
                 ),
               ),
               Container(
@@ -167,14 +167,14 @@ class _LoginScreenState extends State<LoginScreen>
               )
             ],
           );
-        } else if (state is PokedexLoading) {
+        } else if (state is PokemonLoading) {
           return Column(
             children: [
               GestureDetector(
                 onTap: () async => await _pokeballTap(context),
                 child: Container(
                   color: ConstValues.myRedColor,
-                  child: Image.asset("assets/loader/pokeball.gif"),
+                  child: Image.asset("assets/loaders/pokeball.gif"),
                 ),
               ),
               Expanded(
@@ -231,14 +231,14 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ],
           );
-        } else if (state is PokedexLoaded) {
+        } else if (state is PokemonCount) {
           return Column(
             children: [
               GestureDetector(
                 onTap: () async => await _pokeballTap(context),
                 child: Container(
                   color: ConstValues.myRedColor,
-                  child: Image.asset("assets/loader/pokeball.gif"),
+                  child: Image.asset("assets/loaders/pokeball.gif"),
                 ),
               ),
               Expanded(
@@ -308,7 +308,7 @@ class _LoginScreenState extends State<LoginScreen>
                 onTap: () async => await _pokeballTap(context),
                 child: Container(
                   color: ConstValues.myRedColor,
-                  child: Image.asset("assets/loader/pokeball.gif"),
+                  child: Image.asset("assets/loaders/pokeball.gif"),
                 ),
               ),
               Expanded(
