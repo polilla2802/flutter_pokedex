@@ -227,8 +227,11 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                       child: Column(
                         children: [
                           Expanded(
-                            child: SingleChildScrollView(
-                                child: Wrap(children: [_getContent(state)])),
+                            child: Container(
+                              alignment: Alignment.center,
+                              child: SingleChildScrollView(
+                                  child: Wrap(children: [_getContent(state)])),
+                            ),
                           ),
                           BottomNavigationBar(
                               elevation: 0.0,
@@ -658,7 +661,6 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
         .replaceAll('https://pokeapi.co/api/v2/pokemon-species/', '')
         .replaceAll('/', ''));
     return Container(
-      height: 200,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,

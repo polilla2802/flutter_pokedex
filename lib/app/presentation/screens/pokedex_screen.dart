@@ -3,6 +3,7 @@ import 'package:flutter_pokedex/app/configuration/environment.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_card.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_list_tile.dart';
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
+import 'package:flutter_pokedex/app/presentation/components/dialogs/team_name_dialog.dart';
 import 'package:flutter_pokedex/app/presentation/screens/login_screen.dart';
 import 'package:flutter_pokedex/app/presentation/screens/teams_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,17 +22,22 @@ class PokedexScreen extends StatefulWidget {
 class _PokedexScreenState extends State<PokedexScreen> {
   String? _key;
   late String _userName = "";
+  late String _teamName = "";
   late ScrollController _scrollController;
   late int _pokemonCount = 10;
   late bool _listView = false;
   late bool _selectable = false;
   late List<int> _selected = [];
+  late GlobalKey<FormState> _formKey;
+  late FocusNode _myFocus;
 
   _PokedexScreenState(String pokedexScreenKey, bool selectable) {
     _key = pokedexScreenKey;
     _selectable = selectable;
     _listView = _selectable;
     _scrollController = ScrollController();
+    _formKey = GlobalKey<FormState>();
+    _myFocus = FocusNode();
   }
 
   @override
@@ -78,9 +84,10 @@ class _PokedexScreenState extends State<PokedexScreen> {
   }
 
   Future<void> _toTeamsScreenReplacement() async {
-    await Navigator.of(context).pushReplacement(MaterialPageRoute(
-        settings: const RouteSettings(name: TeamsScreen.teamsScreenKey),
-        builder: (context) => TeamsScreen(team: _selected)));
+    await Navigator.of(context).pushNamedAndRemoveUntil(
+        TeamsScreen.teamsScreenKey,
+        ModalRoute.withName(PokedexScreen.pokedexScreenKey),
+        arguments: false);
   }
 
   Future<void> _toTeamsScreenPush() async {
@@ -112,12 +119,59 @@ class _PokedexScreenState extends State<PokedexScreen> {
     });
   }
 
+  Future<void> _chooseName(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Form(
+          key: _formKey,
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: EdgeInsets.all(16),
+            child: Container(
+                child: TeamNameDialog(
+                    focusNode: _myFocus,
+                    onClosed: () {
+                      Navigator.of(context).pop();
+                      _selected.removeLast();
+                      setState(() {});
+                    },
+                    onPressed: () {
+                      _validateName();
+                    },
+                    onSaved: (value) => _saveName(value))),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _validateName() async {
+    print("[_validateName] invoked");
+
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    _formKey.currentState!.save();
+
+    print("_teamName $_teamName");
+
+    _toTeamsScreenReplacement();
+  }
+
+  Future<void> _saveName(String value) async {
+    print("[_saveName] invoked");
+
+    _teamName = value;
+  }
+
   void _addPokemon(int value) {
     setState(() {
       _selected.add(value);
     });
     if (_selected.length == 6) {
-      _toTeamsScreenReplacement();
+      _chooseName(context);
     }
   }
 
@@ -153,9 +207,9 @@ class _PokedexScreenState extends State<PokedexScreen> {
                       ),
                     ),
                     actions: [
-                      _selected.length == 6
+                      _selected.length > 0
                           ? GestureDetector(
-                              onTap: () => _toTeamsScreenReplacement(),
+                              onTap: () => _chooseName(context),
                               child: Container(
                                 alignment: Alignment.center,
                                 padding:
