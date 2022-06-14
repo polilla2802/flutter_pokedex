@@ -28,6 +28,8 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
   late PokedexRepo _pokedexRepo;
   late String _imageUrl =
       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/';
+  late String _imageShinyUrl =
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/';
 
   TextStyle _titleStyle = TextStyle(
       fontWeight: FontWeight.bold,
@@ -44,6 +46,7 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
 
   int _selectedIndex = 0;
   List<int> ids = [];
+  bool _shiny = false;
 
   _PokemonDetailsScreenState(String pokemonDetailsScreenKey, int pokemonId) {
     _key = pokemonDetailsScreenKey;
@@ -146,7 +149,7 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
       padding: EdgeInsets.all(8),
       child: Center(
           child: BlocConsumer<PokedexCubit, PokedexState>(
-        listener: (context, state) => _pokedexListener(state),
+        listener: (context, state) async => await _pokedexListener(state),
         builder: (context, state) {
           if (state is PokemonInitial) {
             _getPokemonDetails(context);
@@ -199,15 +202,20 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
           } else if (state is PokemonLoaded) {
             return Column(
               children: [
-                Container(
-                    height: MediaQuery.of(context).size.height * .25,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage("assets/backgrounds/grey.png")),
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(500.0)),
-                    ),
-                    child: _getPokemonImg()),
+                GestureDetector(
+                  onTap: () => setState(() {
+                    _shiny = !_shiny;
+                  }),
+                  child: Container(
+                      height: MediaQuery.of(context).size.height * .25,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage("assets/backgrounds/grey.png")),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(500.0)),
+                      ),
+                      child: _getPokemonImg()),
+                ),
                 _getPokemonListTile(_pokemonId),
                 Expanded(
                   child: Container(
@@ -349,7 +357,9 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
 
   Widget _getPokemonImg() {
     return CachedNetworkImage(
-        imageUrl: _imageUrl + "$_pokemonId.png",
+        imageUrl: _shiny
+            ? _imageShinyUrl + "$_pokemonId.png"
+            : _imageUrl + "$_pokemonId.png",
         fadeInDuration: Duration.zero,
         placeholderFadeInDuration: Duration.zero,
         fadeOutDuration: Duration.zero,
