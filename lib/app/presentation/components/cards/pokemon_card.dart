@@ -21,6 +21,8 @@ class PokemonCard extends StatefulWidget {
 }
 
 class _PokemonCardState extends State<PokemonCard> {
+  String _key = "pokemon_card";
+
   late bool _saved = false;
   late int _dexNumber;
   late String _name = "";
@@ -56,8 +58,8 @@ class _PokemonCardState extends State<PokemonCard> {
 
     if (dexNumber != "") {
       _saved = true;
-      _name = prefs.getString("${_dexNumber.toString()}Name")!;
-      _type1 = prefs.getString("${_dexNumber.toString()}Type1")!;
+      _name = prefs.getString("${_dexNumber.toString()}Name") ?? "";
+      _type1 = prefs.getString("${_dexNumber.toString()}Type1") ?? "";
       String type2 = prefs.getString("${_dexNumber.toString()}Type2") ?? "";
       if (type2 == "") return null;
       _type2 = type2;
@@ -114,21 +116,12 @@ class _PokemonCardState extends State<PokemonCard> {
     );
   }
 
-  Widget _getPokemonImg() {
-    return CachedNetworkImage(
-        imageUrl: _imageUrl + "$_dexNumber.gif",
-        fadeInDuration: Duration.zero,
-        placeholderFadeInDuration: Duration.zero,
-        fadeOutDuration: Duration.zero,
-        placeholder: (context, url) => Image.asset("assets/loaders/roll.gif"));
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_saved) {
       return Container(
           child: GestureDetector(
-        onTap: () async => _pokemonCardDetails(_dexNumber),
+        onTap: () async => await _pokemonCardDetails(_dexNumber),
         child: Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
@@ -227,7 +220,7 @@ class _PokemonCardState extends State<PokemonCard> {
           child: BlocProvider(
         create: (context) => PokedexCubit(_pokedexRepo),
         child: BlocConsumer<PokedexCubit, PokedexState>(
-          listener: (context, state) => _pokedexListener(state),
+          listener: (context, state) async => await _pokedexListener(state),
           builder: (context, state) {
             if (state is PokemonInitial) {
               _getPokemonById(_dexNumber, context);
@@ -383,7 +376,8 @@ class _PokemonCardState extends State<PokemonCard> {
             } else if (state is PokemonLoaded) {
               return Container(
                   child: GestureDetector(
-                onTap: () async => _pokemonCardDetails(state.pokemon.dexNumber),
+                onTap: () async =>
+                    await _pokemonCardDetails(state.pokemon.dexNumber),
                 child: Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -565,5 +559,20 @@ class _PokemonCardState extends State<PokemonCard> {
         ),
       ));
     }
+  }
+
+  Widget _getPokemonImg() {
+    return CachedNetworkImage(
+        imageUrl: _imageUrl + "$_dexNumber.gif",
+        fadeInDuration: Duration.zero,
+        placeholderFadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        placeholder: (context, url) => Image.asset("assets/loaders/roll.gif"));
+  }
+
+  @override
+  void dispose() {
+    print('$_key Dispose invoked');
+    super.dispose();
   }
 }

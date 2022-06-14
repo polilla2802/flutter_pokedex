@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/app/presentation/screens/pokedex_screen.dart';
+import 'package:flutter_pokedex/app/presentation/screens/pokedex_select_screen.dart';
 import 'package:flutter_pokedex/app/presentation/screens/splash_screen.dart';
 import 'package:flutter_pokedex/app/presentation/screens/teams_screen.dart';
 
@@ -11,25 +12,26 @@ class RouteGenerator {
       case SplashScreen.splashScreenKey:
         return MaterialPageRoute(builder: (_) => SplashScreen());
       case TeamsScreen.teamsScreenKey:
-        if (args is String) {
+        if (args is TeamsScreenArgs) {
           return MaterialPageRoute(
               settings: const RouteSettings(name: TeamsScreen.teamsScreenKey),
               builder: (_) => TeamsScreen(
-                    teamName: args,
+                    teamName: args.teamName,
+                    team: args.team,
                   ));
         }
         return MaterialPageRoute(
             settings: const RouteSettings(name: TeamsScreen.teamsScreenKey),
             builder: (_) => TeamsScreen());
       case PokedexScreen.pokedexScreenKey:
-        if (args is bool) {
-          return MaterialPageRoute(
-              settings:
-                  const RouteSettings(name: PokedexScreen.pokedexScreenKey),
-              builder: (_) => PokedexScreen(args));
-        }
-        return _errorRoute();
-
+        return MaterialPageRoute(
+            settings: const RouteSettings(name: PokedexScreen.pokedexScreenKey),
+            builder: (_) => PokedexScreen());
+      case PokedexSelectScreen.pokedexSelectScreenKey:
+        return MaterialPageRoute(
+            settings: const RouteSettings(
+                name: PokedexSelectScreen.pokedexSelectScreenKey),
+            builder: (_) => PokedexSelectScreen());
       default:
         return _errorRoute();
     }

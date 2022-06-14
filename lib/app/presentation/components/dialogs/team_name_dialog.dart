@@ -39,36 +39,6 @@ class TeamNameDialog extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: onClosed,
-                        child: Chip(
-                          labelPadding: EdgeInsets.all(0.0),
-                          avatar: CircleAvatar(
-                              backgroundColor: Colors.white70,
-                              child: Text(
-                                "x",
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w800),
-                              )),
-                          label: Text(
-                            "",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          backgroundColor: Colors.white,
-                          elevation: 6.0,
-                          shadowColor: Colors.grey[60],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
                   padding: EdgeInsets.only(bottom: 8),
                   child: Text(
                     "Team Name",
@@ -102,7 +72,7 @@ class TeamNameDialog extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: onPressed,
-                  child: Text("Enter"),
+                  child: Text("ENTER"),
                 )
               ],
             ),

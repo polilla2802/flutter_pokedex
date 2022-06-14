@@ -18,6 +18,8 @@ class PokemonMoveCard extends StatefulWidget {
 }
 
 class _PokemonMoveCardState extends State<PokemonMoveCard> {
+  String _key = "pokemon_move_card";
+
   late int _moveId;
   final EdgeInsetsGeometry buttonMargin =
       const EdgeInsets.only(top: 8, bottom: 8);
@@ -59,7 +61,7 @@ class _PokemonMoveCardState extends State<PokemonMoveCard> {
         child: BlocProvider(
           create: (context) => PokedexCubit(_pokedexRepo),
           child: BlocConsumer<PokedexCubit, PokedexState>(
-            listener: (context, state) => _pokedexListener(state),
+            listener: (context, state) async => await _pokedexListener(state),
             builder: (context, state) {
               if (state is PokemonInitial) {
                 _getPokemonMoveById(_moveId, context);
@@ -500,5 +502,11 @@ class _PokemonMoveCardState extends State<PokemonMoveCard> {
             },
           ),
         ));
+  }
+
+  @override
+  void dispose() {
+    print('$_key Dispose invoked');
+    super.dispose();
   }
 }

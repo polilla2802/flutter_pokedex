@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen>
 
       await Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => PokedexScreen(false)),
+        MaterialPageRoute(builder: (context) => PokedexScreen()),
       );
     }
   }
@@ -135,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen>
   Widget _buildBody(BuildContext context) {
     return Center(
         child: BlocConsumer<PokedexCubit, PokedexState>(
-      listener: (context, state) => _pokedexListener(state),
+      listener: (context, state) async => await _pokedexListener(state),
       builder: (context, state) {
         if (state is PokemonInitial) {
           return Column(

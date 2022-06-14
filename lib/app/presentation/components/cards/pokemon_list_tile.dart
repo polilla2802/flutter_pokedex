@@ -33,6 +33,8 @@ class PokemonListTile extends StatefulWidget {
 }
 
 class _PokemonListTileState extends State<PokemonListTile> {
+  String _key = "pokemon_list_tile";
+
   late bool _saved = false;
   late int _dexNumber;
   late String _name = "";
@@ -79,8 +81,8 @@ class _PokemonListTileState extends State<PokemonListTile> {
 
     if (dexNumber != "") {
       _saved = true;
-      _name = prefs.getString("${_dexNumber.toString()}Name")!;
-      _type1 = prefs.getString("${_dexNumber.toString()}Type1")!;
+      _name = prefs.getString("${_dexNumber.toString()}Name") ?? "";
+      _type1 = prefs.getString("${_dexNumber.toString()}Type1") ?? "";
       String type2 = prefs.getString("${_dexNumber.toString()}Type2") ?? "";
       if (type2 == "") return null;
       _type2 = type2;
@@ -137,15 +139,6 @@ class _PokemonListTileState extends State<PokemonListTile> {
     );
   }
 
-  Widget _getPokemonImg() {
-    return CachedNetworkImage(
-        imageUrl: _imageUrl + "$_dexNumber.gif",
-        fadeInDuration: Duration.zero,
-        placeholderFadeInDuration: Duration.zero,
-        fadeOutDuration: Duration.zero,
-        placeholder: (context, url) => Image.asset("assets/loaders/roll.gif"));
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_saved) {
@@ -162,7 +155,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
                             _resPokemon!(_dexNumber);
                           }
                         })
-                    : () async => _pokemonCardDetails(_dexNumber)
+                    : () async => await _pokemonCardDetails(_dexNumber)
                 : null,
             child: Column(children: [
               Container(
@@ -293,7 +286,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
           child: BlocProvider(
             create: (context) => PokedexCubit(_pokedexRepo),
             child: BlocConsumer<PokedexCubit, PokedexState>(
-              listener: (context, state) => _pokedexListener(state),
+              listener: (context, state) async => await _pokedexListener(state),
               builder: (context, state) {
                 if (state is PokemonInitial) {
                   _getPokemonById(_dexNumber, context);
@@ -510,7 +503,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
                                     _resPokemon!(state.pokemon.dexNumber);
                                   }
                                 })
-                            : () async => _pokemonCardDetails(_dexNumber)
+                            : () async => await _pokemonCardDetails(_dexNumber)
                         : null,
                     child: Column(children: [
                       Container(
@@ -762,5 +755,20 @@ class _PokemonListTileState extends State<PokemonListTile> {
             ),
           ));
     }
+  }
+
+  Widget _getPokemonImg() {
+    return CachedNetworkImage(
+        imageUrl: _imageUrl + "$_dexNumber.gif",
+        fadeInDuration: Duration.zero,
+        placeholderFadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        placeholder: (context, url) => Image.asset("assets/loaders/roll.gif"));
+  }
+
+  @override
+  void dispose() {
+    print('$_key Dispose invoked');
+    super.dispose();
   }
 }

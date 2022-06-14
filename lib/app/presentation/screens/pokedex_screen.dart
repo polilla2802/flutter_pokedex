@@ -3,41 +3,29 @@ import 'package:flutter_pokedex/app/configuration/environment.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_card.dart';
 import 'package:flutter_pokedex/app/presentation/components/cards/pokemon_list_tile.dart';
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
-import 'package:flutter_pokedex/app/presentation/components/dialogs/team_name_dialog.dart';
 import 'package:flutter_pokedex/app/presentation/screens/login_screen.dart';
 import 'package:flutter_pokedex/app/presentation/screens/teams_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PokedexScreen extends StatefulWidget {
   static const String pokedexScreenKey = "/pokedex_screen";
-  final bool selectable;
 
-  const PokedexScreen(this.selectable, {Key? key}) : super(key: key);
+  const PokedexScreen({Key? key}) : super(key: key);
 
   @override
-  State<PokedexScreen> createState() =>
-      _PokedexScreenState(pokedexScreenKey, selectable);
+  State<PokedexScreen> createState() => _PokedexScreenState(pokedexScreenKey);
 }
 
 class _PokedexScreenState extends State<PokedexScreen> {
   String? _key;
   late String _userName = "";
-  late String _teamName = "";
   late ScrollController _scrollController;
   late int _pokemonCount = 10;
   late bool _listView = false;
-  late bool _selectable = false;
-  late List<int> _selected = [];
-  late GlobalKey<FormState> _formKey;
-  late FocusNode _myFocus;
 
-  _PokedexScreenState(String pokedexScreenKey, bool selectable) {
+  _PokedexScreenState(String pokedexScreenKey) {
     _key = pokedexScreenKey;
-    _selectable = selectable;
-    _listView = _selectable;
     _scrollController = ScrollController();
-    _formKey = GlobalKey<FormState>();
-    _myFocus = FocusNode();
   }
 
   @override
@@ -58,7 +46,6 @@ class _PokedexScreenState extends State<PokedexScreen> {
     setState(() {
       _userName = prefs.getString("UserName")!;
       _listView = prefs.getBool("ListView") ?? false;
-      _selectable ? _listView = true : _listView = _listView;
       print("_userName $_userName");
     });
   }
@@ -75,26 +62,22 @@ class _PokedexScreenState extends State<PokedexScreen> {
 
   Future<void> _logOut() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool done = await prefs.remove("UserName");
-    if (done) print("prefs cleared");
+    bool doneUserName = await prefs.remove("UserName");
+    if (doneUserName) print("UserName prefs cleared");
+
+    bool doneTeams = await prefs.remove("Teams");
+    if (doneTeams) print("Teams prefs cleared");
+
+    bool doneTeamNames = await prefs.remove("TeamNames");
+    if (doneTeamNames) print("TeamNames prefs cleared");
 
     await Navigator.of(context).pushReplacement(MaterialPageRoute(
         settings: const RouteSettings(name: LoginScreen.loginScreenKey),
         builder: (context) => LoginScreen()));
   }
 
-  Future<void> _toTeamsScreenReplacement() async {
-    await Navigator.of(context).pushNamedAndRemoveUntil(
-        TeamsScreen.teamsScreenKey,
-        ModalRoute.withName(PokedexScreen.pokedexScreenKey),
-        arguments: false);
-  }
-
   Future<void> _toTeamsScreenPush() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => TeamsScreen()),
-    );
+    await Navigator.of(context).pushNamed(TeamsScreen.teamsScreenKey);
   }
 
   void _scrollListener() {
@@ -119,154 +102,53 @@ class _PokedexScreenState extends State<PokedexScreen> {
     });
   }
 
-  Future<void> _chooseName(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Form(
-          key: _formKey,
-          child: Dialog(
-            backgroundColor: Colors.transparent,
-            insetPadding: EdgeInsets.all(16),
-            child: Container(
-                child: TeamNameDialog(
-                    focusNode: _myFocus,
-                    onClosed: () {
-                      Navigator.of(context).pop();
-                      _selected.removeLast();
-                      setState(() {});
-                    },
-                    onPressed: () {
-                      _validateName();
-                    },
-                    onSaved: (value) => _saveName(value))),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _validateName() async {
-    print("[_validateName] invoked");
-
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    _formKey.currentState!.save();
-
-    print("_teamName $_teamName");
-
-    _toTeamsScreenReplacement();
-  }
-
-  Future<void> _saveName(String value) async {
-    print("[_saveName] invoked");
-
-    _teamName = value;
-  }
-
-  void _addPokemon(int value) {
-    setState(() {
-      _selected.add(value);
-    });
-    if (_selected.length == 6) {
-      _chooseName(context);
-    }
-  }
-
-  void _resPokemon(int value) {
-    setState(() {
-      _selected.remove(value);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: () async {
-          if (_selectable) {
-            return true;
-          }
           return false;
         },
         child: Scaffold(
-            appBar: _selectable
-                ? AppBar(
-                    backgroundColor: _selectable
-                        ? ConstValues.primaryColor
-                        : ConstValues.secondaryColor,
-                    leading: Container(),
-                    title: Container(
-                      width: double.infinity,
-                      child: Text(
-                        _selected.length == 0
-                            ? "Select Team"
-                            : _selected.length.toString(),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    actions: [
-                      _selected.length > 0
-                          ? GestureDetector(
-                              onTap: () => _chooseName(context),
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
-                                child: Icon(Icons.check, color: Colors.white),
-                              ))
-                          : GestureDetector(
-                              child: Container(
-                              alignment: Alignment.center,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                            ))
-                    ],
-                  )
-                : AppBar(
-                    backgroundColor: _selectable
-                        ? ConstValues.primaryColor
-                        : ConstValues.secondaryColor,
-                    leading: _listView
-                        ? GestureDetector(
-                            onTap: () => _setListView(),
-                            child: Container(
-                              child: Icon(
-                                Icons.grid_view,
-                                color: Colors.white,
-                              ),
-                            ))
-                        : GestureDetector(
-                            onTap: () => _setListView(),
-                            child: Container(
-                              child: Icon(
-                                Icons.list,
-                                color: Colors.white,
-                              ),
-                            )),
-                    title: Container(
-                      width: double.infinity,
-                      child: Text(
-                        _userName,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    actions: [
-                      GestureDetector(
-                          onTap: () => _logOut(),
-                          child: Container(
-                              alignment: Alignment.center,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              child: Icon(
-                                Icons.logout,
-                                color: Colors.white,
-                              )))
-                    ],
-                  ),
+            appBar: AppBar(
+              backgroundColor: ConstValues.secondaryColor,
+              leading: _listView
+                  ? GestureDetector(
+                      onTap: () async => await _setListView(),
+                      child: Container(
+                        child: Icon(
+                          Icons.grid_view,
+                          color: Colors.white,
+                        ),
+                      ))
+                  : GestureDetector(
+                      onTap: () async => await _setListView(),
+                      child: Container(
+                        child: Icon(
+                          Icons.list,
+                          color: Colors.white,
+                        ),
+                      )),
+              title: Container(
+                width: double.infinity,
+                child: Text(
+                  _userName,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              actions: [
+                GestureDetector(
+                    onTap: () async => await _logOut(),
+                    child: Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Icon(
+                          Icons.logout,
+                          color: Colors.white,
+                        )))
+              ],
+            ),
             body: _buildBody(),
-            floatingActionButton: _selectable ? null : _floatingButton()));
+            floatingActionButton: _floatingButton()));
   }
 
   Widget _buildBody() {
@@ -303,9 +185,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
   }
 
   Widget _getPokemonListTile(int id) {
-    return PokemonListTile(id, true, _selectable, false,
-        addPokemon: (int val) => _addPokemon(val),
-        resPokemon: (int val) => _resPokemon(val));
+    return PokemonListTile(id, true, false, false);
   }
 
   Widget _getPokemonCard(int id) {
@@ -314,7 +194,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
 
   Widget _floatingButton() {
     return FloatingActionButton(
-      onPressed: () async => {_toTeamsScreenPush()},
+      onPressed: () async => await _toTeamsScreenPush(),
       backgroundColor: ConstValues.primaryColor,
       child: const Icon(Icons.menu),
     );

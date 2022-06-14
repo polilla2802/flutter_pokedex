@@ -29,17 +29,17 @@ class _SplashScreenState extends State<SplashScreen> {
         .addPostFrameCallback((_) async => await _afterBuild());
   }
 
+  Future<void> _afterBuild() async {
+    Future.delayed(const Duration(milliseconds: 1000), () async {
+      await _buildMethod();
+    });
+  }
+
   Future<String> _getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _userName = prefs.getString("UserName") ?? "";
     print("_userName $_userName");
     return _userName;
-  }
-
-  Future<void> _afterBuild() async {
-    Future.delayed(const Duration(milliseconds: 1000), () async {
-      await _buildMethod();
-    });
   }
 
   Future<void> _buildMethod() async {
@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       await Navigator.of(context).pushReplacement(MaterialPageRoute(
           settings: const RouteSettings(name: PokedexScreen.pokedexScreenKey),
-          builder: (context) => PokedexScreen(false)));
+          builder: (context) => PokedexScreen()));
     }
   }
 

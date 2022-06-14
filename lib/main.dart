@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/app/configuration/environment.dart';
 import 'package:flutter_pokedex/app/configuration/route_generator.dart';
 import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
-import 'package:flutter_pokedex/app/presentation/screens/login_screen.dart';
-import 'package:flutter_pokedex/app/presentation/screens/pokedex_screen.dart';
-import 'package:flutter_pokedex/app/presentation/screens/pokemon_details_screen.dart';
 import 'package:flutter_pokedex/app/presentation/screens/splash_screen.dart';
 
 void main() {
@@ -41,12 +38,6 @@ class MyApp extends StatelessWidget {
         backgroundColor: ConstValues.primaryColor,
         scaffoldBackgroundColor: Colors.white,
       ),
-      routes: {
-        LoginScreen.loginScreenKey: (context) => LoginScreen(),
-        PokedexScreen.pokedexScreenKey: (context) => PokedexScreen(false),
-        PokemonDetailsScreen.pokemonDetailsScreenKey: (context) =>
-            PokemonDetailsScreen(1),
-      },
       initialRoute: SplashScreen.splashScreenKey,
       onGenerateRoute: RouteGenerator.generateRoute,
     );

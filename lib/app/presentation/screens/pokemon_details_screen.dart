@@ -51,12 +51,6 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
     _pokedexRepo = PokedexRepo();
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -79,6 +73,12 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
     }
 
     if (state is PokemonLoaded) {}
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   void _getPokemonMoveIds(String moveId) {
@@ -685,7 +685,10 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                     child: Container(
                       child: Image.network(
                         "$_imageUrl$stateParse.png",
-                        width: 80,
+                        width: state.pokemonChain!.evolutionChain.data!
+                                .pokemonLink.isEmpty
+                            ? 150
+                            : 80,
                       ),
                     ),
                   ),
