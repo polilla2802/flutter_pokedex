@@ -56,6 +56,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
 
     if (done) print('[$_key] ListView saved to $_listView');
     setState(() {
+      _pokemonCount = 10;
       _listView = !_listView;
     });
   }
