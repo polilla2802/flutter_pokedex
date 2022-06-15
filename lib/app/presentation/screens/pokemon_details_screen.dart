@@ -800,14 +800,21 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
   }
 
   Widget _getMovesContent(PokemonLoaded state) {
-    ids.clear();
-    for (var i in state.pokemon.moveIds) _getPokemonMoveIds(i.data!.moveId);
-    print(ids);
-    List<int> finalIds = ids.toSet().toList();
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [for (var i in finalIds) _getPokemonMoveCard(i)]);
+    if (ids.isEmpty) {
+      for (var i in state.pokemon.moveIds) _getPokemonMoveIds(i.data!.moveId);
+      print(ids);
+      List<int> finalIds = ids.toSet().toList();
+      return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [for (var i in finalIds) _getPokemonMoveCard(i)]);
+    } else {
+      List<int> finalIds = ids.toSet().toList();
+      return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [for (var i in finalIds) _getPokemonMoveCard(i)]);
+    }
   }
 
   Widget _getPokemonMoveCard(int moveId) {
