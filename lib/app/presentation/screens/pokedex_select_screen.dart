@@ -135,9 +135,9 @@ class _PokedexSelectScreenState extends State<PokedexSelectScreen> {
             _pokemonCount = _pokemonCount + 10;
           });
         }
-        if (_pokemonCount == 150) {
+        if (_pokemonCount == 370) {
           setState(() {
-            _pokemonCount = _pokemonCount + 1;
+            _pokemonCount = _pokemonCount + 7;
           });
         }
       }
@@ -158,7 +158,6 @@ class _PokedexSelectScreenState extends State<PokedexSelectScreen> {
               backgroundColor: _selectable
                   ? ConstValues.primaryColor
                   : ConstValues.secondaryColor,
-              leading: Container(),
               title: Container(
                 width: double.infinity,
                 child: Text(

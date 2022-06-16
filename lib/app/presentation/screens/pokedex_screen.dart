@@ -94,9 +94,9 @@ class _PokedexScreenState extends State<PokedexScreen> {
             _pokemonCount = _pokemonCount + 10;
           });
         }
-        if (_pokemonCount == 150) {
+        if (_pokemonCount == 370) {
           setState(() {
-            _pokemonCount = _pokemonCount + 1;
+            _pokemonCount = _pokemonCount + 7;
           });
         }
       }
