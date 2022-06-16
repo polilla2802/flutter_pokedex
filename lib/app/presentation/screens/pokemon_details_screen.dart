@@ -13,18 +13,21 @@ import 'package:flutter_pokedex/app/services/utils/util.dart';
 class PokemonDetailsScreen extends StatefulWidget {
   static const String pokemonDetailsScreenKey = "/pokemon_details_screen";
   final int pokemonId;
+  final String pokemonType;
 
-  const PokemonDetailsScreen(this.pokemonId, {Key? key}) : super(key: key);
+  const PokemonDetailsScreen(this.pokemonId, this.pokemonType, {Key? key})
+      : super(key: key);
 
   @override
-  State<PokemonDetailsScreen> createState() =>
-      _PokemonDetailsScreenState(pokemonDetailsScreenKey, pokemonId);
+  State<PokemonDetailsScreen> createState() => _PokemonDetailsScreenState(
+      pokemonDetailsScreenKey, pokemonId, pokemonType);
 }
 
 class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
     with SingleTickerProviderStateMixin {
   String? _key;
   late int _pokemonId;
+  late String _pokemonType;
   late PokedexRepo _pokedexRepo;
   late String _imageUrl =
       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/';
@@ -48,9 +51,11 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
   List<int> ids = [];
   bool _shiny = false;
 
-  _PokemonDetailsScreenState(String pokemonDetailsScreenKey, int pokemonId) {
+  _PokemonDetailsScreenState(
+      String pokemonDetailsScreenKey, int pokemonId, String pokemonType) {
     _key = pokemonDetailsScreenKey;
     _pokemonId = pokemonId;
+    _pokemonType = pokemonType;
     _pokedexRepo = PokedexRepo();
   }
 
@@ -125,6 +130,8 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
+            backgroundColor: PokemonUtils.getColorByType(
+                PokemonUtils.getTypeEnum(_pokemonType)),
             leading: GestureDetector(
                 onTap: () => Navigator.of(context).pop(),
                 child: Container(
@@ -146,78 +153,83 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
 
   Widget _buildBody(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(8),
-      child: Center(
-          child: BlocConsumer<PokedexCubit, PokedexState>(
-        listener: (context, state) async => await _pokedexListener(state),
-        builder: (context, state) {
-          if (state is PokemonInitial) {
-            _getPokemonDetails(context);
-            return Column(
-              children: [
-                Container(
-                    height: MediaQuery.of(context).size.height * .25,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage("assets/backgrounds/grey.png")),
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(500.0)),
-                    ),
-                    child: Image.asset("assets/loaders/roll.gif")),
-              ],
-            );
-          } else if (state is PokemonLoading) {
-            return Column(
-              children: [
-                Container(
-                    height: MediaQuery.of(context).size.height * .25,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage("assets/backgrounds/grey.png")),
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(500.0)),
-                    ),
-                    child: Image.asset("assets/loaders/roll.gif")),
-                Expanded(
+        padding: EdgeInsets.all(16),
+        child: Center(
+            child: Column(children: [
+          GestureDetector(
+            onTap: () => setState(() {
+              _shiny = !_shiny;
+            }),
+            child: Container(
+                height: MediaQuery.of(context).size.height * .25,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage("assets/backgrounds/grey.png")),
+                  borderRadius: const BorderRadius.all(Radius.circular(500.0)),
+                ),
+                child: _getPokemonImg()),
+          ),
+          _getPokemonListTile(_pokemonId),
+          BlocConsumer<PokedexCubit, PokedexState>(
+            listener: (context, state) async => await _pokedexListener(state),
+            builder: (context, state) {
+              if (state is PokemonInitial) {
+                _getPokemonDetails(context);
+
+                return Expanded(
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: PokemonUtils.getLighterColorByType(
+                          PokemonUtils.getTypeEnum(_pokemonType)),
                       borderRadius:
                           const BorderRadius.all(Radius.circular(20.0)),
                       border: Border.all(
-                        color: ConstValues.secondaryColor,
+                        color: PokemonUtils.getColorByType(
+                            PokemonUtils.getTypeEnum(_pokemonType)),
                         width: 5.0,
                       ),
                     ),
                     padding: EdgeInsets.all(16),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Image.asset("assets/loaders/roll.gif")],
+                      children: [
+                        CircularProgressIndicator(
+                          color: PokemonUtils.getColorByType(
+                              PokemonUtils.getTypeEnum(_pokemonType)),
+                        )
+                      ],
                     ),
                   ),
-                )
-              ],
-            );
-          } else if (state is PokemonLoaded) {
-            return Column(
-              children: [
-                GestureDetector(
-                  onTap: () => setState(() {
-                    _shiny = !_shiny;
-                  }),
+                );
+              } else if (state is PokemonLoading) {
+                return Expanded(
                   child: Container(
-                      height: MediaQuery.of(context).size.height * .25,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                            image: AssetImage("assets/backgrounds/grey.png")),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(500.0)),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: PokemonUtils.getLighterColorByType(
+                          PokemonUtils.getTypeEnum(_pokemonType)),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(20.0)),
+                      border: Border.all(
+                        color: PokemonUtils.getColorByType(
+                            PokemonUtils.getTypeEnum(_pokemonType)),
+                        width: 5.0,
                       ),
-                      child: _getPokemonImg()),
-                ),
-                _getPokemonListTile(_pokemonId),
-                Expanded(
+                    ),
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                            color: PokemonUtils.getColorByType(
+                                PokemonUtils.getTypeEnum(_pokemonType)))
+                      ],
+                    ),
+                  ),
+                );
+              } else if (state is PokemonLoaded) {
+                return Expanded(
                   child: Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -302,23 +314,9 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                               ]),
                         ],
                       )),
-                )
-              ],
-            );
-          } else {
-            return Column(
-              children: [
-                Container(
-                    height: MediaQuery.of(context).size.height * .25,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage("assets/backgrounds/grey.png")),
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(500.0)),
-                    ),
-                    child: _getPokemonImg()),
-                _getPokemonListTile(_pokemonId),
-                Expanded(
+                );
+              } else {
+                return Expanded(
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
@@ -332,13 +330,11 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                     ),
                     padding: EdgeInsets.all(16),
                   ),
-                )
-              ],
-            );
-          }
-        },
-      )),
-    );
+                );
+              }
+            },
+          ),
+        ])));
   }
 
   List<Widget> _getAbilities(PokemonLoaded state, TextStyle textStyle) {
@@ -688,8 +684,8 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        PokemonDetailsScreen(stateParse)),
+                                    builder: (context) => PokemonDetailsScreen(
+                                        stateParse, state.pokemon.type1)),
                               )
                             },
                     child: Container(
@@ -730,13 +726,14 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                                   await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            PokemonDetailsScreen(int.parse(j
+                                        builder: (context) => PokemonDetailsScreen(
+                                            int.parse(j
                                                 .data!.pokemonSpecie.data!.id
                                                 .replaceAll(
                                                     'https://pokeapi.co/api/v2/pokemon-species/',
                                                     '')
-                                                .replaceAll('/', '')))),
+                                                .replaceAll('/', '')),
+                                            state.pokemon.type1)),
                                   )
                                 },
                         child: Container(
@@ -783,7 +780,8 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                                           .replaceAll(
                                               'https://pokeapi.co/api/v2/pokemon-species/',
                                               '')
-                                          .replaceAll('/', '')))),
+                                          .replaceAll('/', '')),
+                                      state.pokemon.type1)),
                             )
                           },
                   child: Container(

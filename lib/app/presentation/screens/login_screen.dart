@@ -125,7 +125,12 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _getPokemonCard(int id) {
-    return PokemonListTile(id, true, false, false);
+    return PokemonListTile(
+      id,
+      true,
+      false,
+      false,
+    );
   }
 
   Widget _getPokemonError() {

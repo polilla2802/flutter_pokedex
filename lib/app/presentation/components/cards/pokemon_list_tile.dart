@@ -137,10 +137,11 @@ class _PokemonListTileState extends State<PokemonListTile> {
     await pokedexCubit.getPokemonById(pokemonId, context);
   }
 
-  Future<void> _pokemonCardDetails(int pokemonId) async {
+  Future<void> _pokemonCardDetails(int pokemonId, String pokemonType) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PokemonDetailsScreen(pokemonId)),
+      MaterialPageRoute(
+          builder: (context) => PokemonDetailsScreen(pokemonId, pokemonType)),
     );
   }
 
@@ -161,7 +162,8 @@ class _PokemonListTileState extends State<PokemonListTile> {
                               _resPokemon!(_dexNumber);
                             }
                           })
-                      : () async => await _pokemonCardDetails(_dexNumber)
+                      : () async =>
+                          await _pokemonCardDetails(_dexNumber, _type1)
                   : null,
               child: Column(children: [
                 Container(
@@ -513,8 +515,8 @@ class _PokemonListTileState extends State<PokemonListTile> {
                                       _resPokemon!(state.pokemon.dexNumber);
                                     }
                                   })
-                              : () async =>
-                                  await _pokemonCardDetails(_dexNumber)
+                              : () async => await _pokemonCardDetails(
+                                  _dexNumber, state.pokemon.type1)
                           : null,
                       child: Column(children: [
                         Container(
