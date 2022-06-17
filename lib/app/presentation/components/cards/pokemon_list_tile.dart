@@ -14,6 +14,7 @@ class PokemonListTile extends StatefulWidget {
   final bool interactive;
   final bool selectable;
   final bool selected;
+
   final Function(int val)? addPokemon;
   final Function(int val)? resPokemon;
   const PokemonListTile(
@@ -21,26 +22,29 @@ class PokemonListTile extends StatefulWidget {
     this.interactive,
     this.selectable,
     this.selected, {
+    Key? key,
     this.addPokemon,
     this.resPokemon,
-    Key? key,
   }) : super(key: key);
 
   @override
   State<PokemonListTile> createState() =>
-      _PokemonListTileState(pokemonId, interactive, selectable, selected,
+      PokemonListTileState(pokemonId, interactive, selectable, selected,
           addPokemon: addPokemon, resPokemon: resPokemon);
 }
 
-class _PokemonListTileState extends State<PokemonListTile> {
+class PokemonListTileState extends State<PokemonListTile> {
   String _key = "pokemon_list_tile";
 
   late bool _saved = false;
   late bool _ready = false;
+  late bool _isShiny = false;
   late int _dexNumber;
   late String _name = "";
   late String _imageUrl =
       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/';
+  late String _imageShinyUrl =
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/';
   late String _type1 = "";
   String? _type2;
   late bool _interactive;
@@ -53,7 +57,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
 
   late PokedexRepo _pokedexRepo;
 
-  _PokemonListTileState(
+  PokemonListTileState(
       int pokemonId, bool interactive, bool selectable, bool selected,
       {Function(int val)? addPokemon, Function(int val)? resPokemon}) {
     _dexNumber = pokemonId;
@@ -137,13 +141,19 @@ class _PokemonListTileState extends State<PokemonListTile> {
     await pokedexCubit.getPokemonById(pokemonId, context);
   }
 
-  Future<void> _pokemonCardDetails(int pokemonId, String pokemonType) async {
+  Future<void> _pokemonCardDetails(
+      int pokemonId, String pokemonName, String pokemonType) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => PokemonDetailsScreen(pokemonId, pokemonType)),
+          builder: (context) =>
+              PokemonDetailsScreen(pokemonId, pokemonName, pokemonType)),
     );
   }
+
+  void setShiny() => setState(() {
+        _isShiny = !_isShiny;
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +173,7 @@ class _PokemonListTileState extends State<PokemonListTile> {
                             }
                           })
                       : () async =>
-                          await _pokemonCardDetails(_dexNumber, _type1)
+                          await _pokemonCardDetails(_dexNumber, _name, _type1)
                   : null,
               child: Column(children: [
                 Container(
@@ -516,7 +526,9 @@ class _PokemonListTileState extends State<PokemonListTile> {
                                     }
                                   })
                               : () async => await _pokemonCardDetails(
-                                  _dexNumber, state.pokemon.type1)
+                                  _dexNumber,
+                                  state.pokemon.name,
+                                  state.pokemon.type1)
                           : null,
                       child: Column(children: [
                         Container(
@@ -877,7 +889,9 @@ class _PokemonListTileState extends State<PokemonListTile> {
 
   Widget _getPokemonImg() {
     return CachedNetworkImage(
-        imageUrl: _imageUrl + "$_dexNumber.gif",
+        imageUrl: _isShiny
+            ? _imageShinyUrl + "$_dexNumber.gif"
+            : _imageUrl + "$_dexNumber.gif",
         fadeInDuration: Duration.zero,
         placeholderFadeInDuration: Duration.zero,
         fadeOutDuration: Duration.zero,

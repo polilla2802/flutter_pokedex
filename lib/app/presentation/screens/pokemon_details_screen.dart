@@ -13,20 +13,23 @@ import 'package:flutter_pokedex/app/services/utils/util.dart';
 class PokemonDetailsScreen extends StatefulWidget {
   static const String pokemonDetailsScreenKey = "/pokemon_details_screen";
   final int pokemonId;
+  final String pokemonName;
   final String pokemonType;
 
-  const PokemonDetailsScreen(this.pokemonId, this.pokemonType, {Key? key})
+  const PokemonDetailsScreen(this.pokemonId, this.pokemonName, this.pokemonType,
+      {Key? key})
       : super(key: key);
 
   @override
-  State<PokemonDetailsScreen> createState() => _PokemonDetailsScreenState(
-      pokemonDetailsScreenKey, pokemonId, pokemonType);
+  State<PokemonDetailsScreen> createState() => PokemonDetailsScreenState(
+      pokemonDetailsScreenKey, pokemonId, pokemonName, pokemonType);
 }
 
-class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
+class PokemonDetailsScreenState extends State<PokemonDetailsScreen>
     with SingleTickerProviderStateMixin {
   String? _key;
   late int _pokemonId;
+  late String _pokemonName;
   late String _pokemonType;
   late PokedexRepo _pokedexRepo;
   late String _imageUrl =
@@ -49,12 +52,16 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
 
   int _selectedIndex = 0;
   List<int> ids = [];
-  bool _shiny = false;
+  bool _isShiny = false;
 
-  _PokemonDetailsScreenState(
-      String pokemonDetailsScreenKey, int pokemonId, String pokemonType) {
+  final GlobalKey<PokemonListTileState> _myPokemonListState =
+      GlobalKey<PokemonListTileState>();
+
+  PokemonDetailsScreenState(String pokemonDetailsScreenKey, int pokemonId,
+      String pokemonName, String pokemonType) {
     _key = pokemonDetailsScreenKey;
     _pokemonId = pokemonId;
+    _pokemonName = pokemonName;
     _pokemonType = pokemonType;
     _pokedexRepo = PokedexRepo();
   }
@@ -68,6 +75,11 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
   }
 
   Future<void> _afterBuild() async {}
+
+  void myMethodIWantToCallFromAnotherWidget() {
+    print('calling myMethodIWantToCallFromAnotherWidget..');
+    // actual implementation here
+  }
 
   Future<void> _getPokemonDetails(BuildContext context) async {
     final pokedexCubit = BlocProvider.of<PokedexCubit>(context);
@@ -123,6 +135,13 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
     return _genreType;
   }
 
+  void _setShiny() {
+    _myPokemonListState.currentState!.setShiny();
+    setState(() {
+      _isShiny = !_isShiny;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -143,9 +162,27 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
             title: Container(
                 width: double.infinity,
                 child: Text(
+                  _pokemonName.toUpperCase(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                )),
+            actions: [
+              Container(
+                margin: EdgeInsets.only(right: 8),
+                alignment: Alignment.center,
+                child: Text(
                   PokemonUtils.toDexNumber(_pokemonId),
                   textAlign: TextAlign.right,
-                )),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                ),
+              )
+            ],
           ),
           body: _buildBody(context),
         ));
@@ -157,9 +194,7 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
         child: Center(
             child: Column(children: [
           GestureDetector(
-            onTap: () => setState(() {
-              _shiny = !_shiny;
-            }),
+            onTap: () => _setShiny(),
             child: Container(
                 height: MediaQuery.of(context).size.height * .25,
                 decoration: BoxDecoration(
@@ -167,7 +202,7 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                       image: AssetImage("assets/backgrounds/grey.png")),
                   borderRadius: const BorderRadius.all(Radius.circular(500.0)),
                 ),
-                child: _getPokemonImg()),
+                child: _getPokemonImg(_pokemonId)),
           ),
           _getPokemonListTile(_pokemonId),
           BlocConsumer<PokedexCubit, PokedexState>(
@@ -175,7 +210,6 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
             builder: (context, state) {
               if (state is PokemonInitial) {
                 _getPokemonDetails(context);
-
                 return Expanded(
                   child: Container(
                     width: double.infinity,
@@ -243,7 +277,8 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                           width: 5.0,
                         ),
                       ),
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.only(
+                          top: 16, right: 16, bottom: 0, left: 16),
                       child: Column(
                         children: [
                           Expanded(
@@ -351,11 +386,11 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
     return abilities;
   }
 
-  Widget _getPokemonImg() {
+  Widget _getPokemonImg(int pokemonId) {
     return CachedNetworkImage(
-        imageUrl: _shiny
-            ? _imageShinyUrl + "$_pokemonId.png"
-            : _imageUrl + "$_pokemonId.png",
+        imageUrl: _isShiny
+            ? _imageShinyUrl + "$pokemonId.png"
+            : _imageUrl + "$pokemonId.png",
         fadeInDuration: Duration.zero,
         placeholderFadeInDuration: Duration.zero,
         fadeOutDuration: Duration.zero,
@@ -363,7 +398,13 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
   }
 
   Widget _getPokemonListTile(int id) {
-    return PokemonListTile(id, false, false, false);
+    return PokemonListTile(
+      id,
+      false,
+      false,
+      false,
+      key: _myPokemonListState,
+    );
   }
 
   Widget _getAboutContent(PokemonLoaded state) {
@@ -666,6 +707,8 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
         .pokemonChain!.evolutionChain.data!.pokemonSpecie.data!.id
         .replaceAll('https://pokeapi.co/api/v2/pokemon-species/', '')
         .replaceAll('/', ''));
+    String stateName =
+        state.pokemonChain!.evolutionChain.data!.pokemonSpecie.data!.name;
     return Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -673,9 +716,8 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
         children: [
           if (stateParse <= environment!.totalPokemon!)
             Container(
-              padding: EdgeInsets.only(bottom: 16),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   GestureDetector(
                     onTap: state.pokemon.dexNumber == stateParse
@@ -685,16 +727,47 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => PokemonDetailsScreen(
-                                        stateParse, state.pokemon.type1)),
+                                        stateParse,
+                                        state.pokemon.name,
+                                        state.pokemon.type1)),
                               )
                             },
                     child: Container(
-                      child: Image.network(
-                        "$_imageUrl$stateParse.png",
-                        width: state.pokemonChain!.evolutionChain.data!
-                                .pokemonLink.isEmpty
-                            ? 150
-                            : 80,
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.only(top: 8),
+                            child: Text(
+                              PokemonUtils.toDexNumber(_pokemonId),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: PokemonUtils.getColorByType(
+                                      PokemonUtils.getTypeEnum(
+                                          state.pokemon.type1)),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Container(
+                              width: state.pokemonChain!.evolutionChain.data!
+                                      .pokemonLink.isEmpty
+                                  ? 150
+                                  : 80,
+                              child: _getPokemonImg(stateParse)),
+                          Container(
+                            padding: EdgeInsets.only(top: 8),
+                            child: Text(
+                              stateName.toUpperCase(),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: PokemonUtils.getColorByType(
+                                      PokemonUtils.getTypeEnum(
+                                          state.pokemon.type1)),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -710,7 +783,6 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                       .replaceAll('/', '')) <=
                   environment!.totalPokemon!)
                 Container(
-                  padding: EdgeInsets.only(bottom: 16),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -733,13 +805,54 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                                                     'https://pokeapi.co/api/v2/pokemon-species/',
                                                     '')
                                                 .replaceAll('/', '')),
+                                            i.data!.pokemonSpecie.data!.name,
                                             state.pokemon.type1)),
                                   )
                                 },
                         child: Container(
-                          child: Image.network(
-                            "$_imageUrl${int.parse(j.data!.pokemonSpecie.data!.id.replaceAll('https://pokeapi.co/api/v2/pokemon-species/', '').replaceAll('/', ''))}.png",
-                            width: 80,
+                          child: Column(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.only(top: 8),
+                                child: Text(
+                                  PokemonUtils.toDexNumber(int.parse(j
+                                      .data!.pokemonSpecie.data!.id
+                                      .replaceAll(
+                                          'https://pokeapi.co/api/v2/pokemon-species/',
+                                          '')
+                                      .replaceAll('/', ''))),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: PokemonUtils.getColorByType(
+                                          PokemonUtils.getTypeEnum(
+                                              state.pokemon.type1)),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              Container(
+                                  width: 80,
+                                  child: _getPokemonImg(int.parse(j
+                                      .data!.pokemonSpecie.data!.id
+                                      .replaceAll(
+                                          'https://pokeapi.co/api/v2/pokemon-species/',
+                                          '')
+                                      .replaceAll('/', '')))),
+                              Container(
+                                padding: EdgeInsets.only(top: 8),
+                                child: Text(
+                                  j.data!.pokemonSpecie.data!.name
+                                      .toUpperCase(),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: PokemonUtils.getColorByType(
+                                          PokemonUtils.getTypeEnum(
+                                              state.pokemon.type1)),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -759,7 +872,6 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                 .replaceAll('/', '')) <=
             environment!.totalPokemon!)
           Container(
-            padding: EdgeInsets.only(bottom: 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -781,13 +893,53 @@ class _PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                                               'https://pokeapi.co/api/v2/pokemon-species/',
                                               '')
                                           .replaceAll('/', '')),
+                                      i.data!.pokemonSpecie.data!.name,
                                       state.pokemon.type1)),
                             )
                           },
                   child: Container(
-                    child: Image.network(
-                      "$_imageUrl${int.parse(i.data!.pokemonSpecie.data!.id.replaceAll('https://pokeapi.co/api/v2/pokemon-species/', '').replaceAll('/', ''))}.png",
-                      width: 80,
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text(
+                            PokemonUtils.toDexNumber(int.parse(i
+                                .data!.pokemonSpecie.data!.id
+                                .replaceAll(
+                                    'https://pokeapi.co/api/v2/pokemon-species/',
+                                    '')
+                                .replaceAll('/', ''))),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: PokemonUtils.getColorByType(
+                                    PokemonUtils.getTypeEnum(
+                                        state.pokemon.type1)),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Container(
+                            width: 80,
+                            child: _getPokemonImg(int.parse(i
+                                .data!.pokemonSpecie.data!.id
+                                .replaceAll(
+                                    'https://pokeapi.co/api/v2/pokemon-species/',
+                                    '')
+                                .replaceAll('/', '')))),
+                        Container(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text(
+                            i.data!.pokemonSpecie.data!.name.toUpperCase(),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: PokemonUtils.getColorByType(
+                                    PokemonUtils.getTypeEnum(
+                                        state.pokemon.type1)),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

@@ -61,9 +61,7 @@ class TeamNameDialog extends StatelessWidget {
                       }
                       return null;
                     },
-                    onSave: (String? value) {
-                      onSaved!(value!);
-                    },
+                    onSave: (String? value) => onSaved!(value!),
                     focusNode: focusNode!,
                   ),
                 ),

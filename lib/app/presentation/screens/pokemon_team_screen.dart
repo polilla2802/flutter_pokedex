@@ -74,7 +74,12 @@ class _PokemonTeamScreenState extends State<PokemonTeamScreen> {
   }
 
   Widget _getPokemonListTile(int id) {
-    return PokemonListTile(id, true, false, false);
+    return PokemonListTile(
+      id,
+      true,
+      false,
+      false,
+    );
   }
 
   @override

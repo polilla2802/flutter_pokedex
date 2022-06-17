@@ -114,11 +114,13 @@ class _PokemonCardState extends State<PokemonCard> {
     await pokedexCubit.getPokemonById(pokemonCount, context);
   }
 
-  Future<void> _pokemonCardDetails(int pokemonId, String pokemonType) async {
+  Future<void> _pokemonCardDetails(
+      int pokemonId, String pokemonName, String pokemonType) async {
     await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PokemonDetailsScreen(pokemonId, pokemonType),
+          builder: (context) =>
+              PokemonDetailsScreen(pokemonId, pokemonName, pokemonType),
         ));
   }
 
@@ -128,7 +130,8 @@ class _PokemonCardState extends State<PokemonCard> {
       if (_saved) {
         return Container(
             child: GestureDetector(
-          onTap: () async => await _pokemonCardDetails(_dexNumber, _type1),
+          onTap: () async =>
+              await _pokemonCardDetails(_dexNumber, _name, _type1),
           child: Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
@@ -388,7 +391,9 @@ class _PokemonCardState extends State<PokemonCard> {
                 return Container(
                     child: GestureDetector(
                   onTap: () async => await _pokemonCardDetails(
-                      state.pokemon.dexNumber, state.pokemon.type1),
+                      state.pokemon.dexNumber,
+                      state.pokemon.name,
+                      state.pokemon.type1),
                   child: Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
