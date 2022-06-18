@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "151417896303",
+    "project_id": "poke-library",
+    "storage_bucket": "poke-library.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:151417896303:android:a727e7ddde2aea2ac5bc9a",
+        "android_client_info": {
+          "package_name": "com.poke.library"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "151417896303-d5eakbsnf4rhehr1kuqcphk7eo0081ku.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpU7GbbmsfwBxeBSkBXCLnftftdlzehU4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "151417896303-d5eakbsnf4rhehr1kuqcphk7eo0081ku.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
