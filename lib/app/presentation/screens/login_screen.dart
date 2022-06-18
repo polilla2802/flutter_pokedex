@@ -115,8 +115,8 @@ class _LoginScreenState extends State<LoginScreen>
                 leading: Container(),
                 title: Container(
                     width: double.infinity,
-                    child: const Text(
-                      "Pokedex",
+                    child: Text(
+                      "Poke Library".toUpperCase(),
                       textAlign: TextAlign.right,
                     )),
               ),
