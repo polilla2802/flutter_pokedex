@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PokemonCard extends StatefulWidget {
   final int pokemonId;
+
   const PokemonCard(
     this.pokemonId, {
     Key? key,
@@ -31,6 +32,16 @@ class _PokemonCardState extends State<PokemonCard> {
       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/';
   late String _type1 = "";
   String? _type2;
+  final _odd = BorderRadius.only(
+      topLeft: Radius.circular(10),
+      topRight: Radius.circular(10),
+      bottomLeft: Radius.circular(10),
+      bottomRight: Radius.circular(10));
+  final _even = BorderRadius.only(
+      topLeft: Radius.circular(10),
+      topRight: Radius.circular(10),
+      bottomLeft: Radius.circular(10),
+      bottomRight: Radius.circular(10));
 
   final EdgeInsetsGeometry buttonMargin =
       const EdgeInsets.only(top: 8, bottom: 8);
@@ -134,7 +145,7 @@ class _PokemonCardState extends State<PokemonCard> {
               await _pokemonCardDetails(_dexNumber, _name, _type1),
           child: Card(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: _dexNumber.isEven ? _odd : _even,
               ),
               color:
                   PokemonUtils.getColorByType(PokemonUtils.getTypeEnum(_type1)),

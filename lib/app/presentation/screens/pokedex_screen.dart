@@ -116,6 +116,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
                   ? GestureDetector(
                       onTap: () async => await _setListView(),
                       child: Container(
+                        width: 100,
                         child: Icon(
                           Icons.grid_view,
                           color: Colors.white,
@@ -124,6 +125,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
                   : GestureDetector(
                       onTap: () async => await _setListView(),
                       child: Container(
+                        width: 100,
                         child: Icon(
                           Icons.list,
                           color: Colors.white,

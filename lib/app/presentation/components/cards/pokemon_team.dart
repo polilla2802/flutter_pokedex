@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pokedex/app/presentation/components/common/common_widgets.dart';
 import 'package:flutter_pokedex/app/presentation/screens/pokemon_team_screen.dart';
 import 'package:flutter_pokedex/app/presentation/screens/teams_screen.dart';
 
@@ -27,7 +26,7 @@ class _PokemonTeamCardState extends State<PokemonTeamCard> {
       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/';
 
   final EdgeInsetsGeometry buttonMargin =
-      const EdgeInsets.only(top: 8, bottom: 8);
+      const EdgeInsets.only(top: 4, bottom: 4);
 
   _PokemonTeamCardState(String teamName, String team) {
     _teamName = teamName;
@@ -66,10 +65,10 @@ class _PokemonTeamCardState extends State<PokemonTeamCard> {
             Container(
               padding: const EdgeInsets.only(top: 8, right: 16, left: 16),
               decoration: BoxDecoration(
-                  color: ConstValues.secondaryColor,
+                  color: Colors.grey.shade700,
                   borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10))),
+                      topLeft: Radius.circular(15),
+                      topRight: Radius.circular(15))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -85,12 +84,12 @@ class _PokemonTeamCardState extends State<PokemonTeamCard> {
             ),
             Container(
               padding:
-                  const EdgeInsets.only(top: 3, bottom: 3, right: 3, left: 3),
+                  const EdgeInsets.only(top: 3, bottom: 5, right: 5, left: 5),
               decoration: BoxDecoration(
-                  color: ConstValues.secondaryColor,
+                  color: Colors.grey.shade700,
                   borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10))),
+                      bottomLeft: Radius.circular(15),
+                      bottomRight: Radius.circular(15))),
               child: Card(
                 margin: const EdgeInsets.all(0),
                 elevation: 0.0,

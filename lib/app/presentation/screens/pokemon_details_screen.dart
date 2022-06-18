@@ -190,12 +190,12 @@ class PokemonDetailsScreenState extends State<PokemonDetailsScreen>
 
   Widget _buildBody(BuildContext context) {
     return Container(
-        padding: EdgeInsets.all(16),
-        child: Center(
-            child: Column(children: [
+        margin: EdgeInsets.symmetric(horizontal: 8),
+        child: Column(children: [
           GestureDetector(
             onTap: () => _setShiny(),
             child: Container(
+                margin: EdgeInsets.only(top: 12, bottom: 4),
                 height: MediaQuery.of(context).size.height * .25,
                 decoration: BoxDecoration(
                   image: DecorationImage(
@@ -212,12 +212,13 @@ class PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                 _getPokemonDetails(context);
                 return Expanded(
                   child: Container(
+                    margin: EdgeInsets.only(top: 4),
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: PokemonUtils.getLighterColorByType(
                           PokemonUtils.getTypeEnum(_pokemonType)),
                       borderRadius:
-                          const BorderRadius.all(Radius.circular(20.0)),
+                          const BorderRadius.all(Radius.circular(15.0)),
                       border: Border.all(
                         color: PokemonUtils.getColorByType(
                             PokemonUtils.getTypeEnum(_pokemonType)),
@@ -239,12 +240,13 @@ class PokemonDetailsScreenState extends State<PokemonDetailsScreen>
               } else if (state is PokemonLoading) {
                 return Expanded(
                   child: Container(
+                    margin: EdgeInsets.only(top: 4),
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: PokemonUtils.getLighterColorByType(
                           PokemonUtils.getTypeEnum(_pokemonType)),
                       borderRadius:
-                          const BorderRadius.all(Radius.circular(20.0)),
+                          const BorderRadius.all(Radius.circular(15.0)),
                       border: Border.all(
                         color: PokemonUtils.getColorByType(
                             PokemonUtils.getTypeEnum(_pokemonType)),
@@ -265,12 +267,13 @@ class PokemonDetailsScreenState extends State<PokemonDetailsScreen>
               } else if (state is PokemonLoaded) {
                 return Expanded(
                   child: Container(
+                      margin: EdgeInsets.only(top: 4),
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: PokemonUtils.getLighterColorByType(
                             PokemonUtils.getTypeEnum(state.pokemon.type1)),
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(20.0)),
+                            const BorderRadius.all(Radius.circular(15.0)),
                         border: Border.all(
                           color: PokemonUtils.getColorByType(
                               PokemonUtils.getTypeEnum(state.pokemon.type1)),
@@ -353,6 +356,7 @@ class PokemonDetailsScreenState extends State<PokemonDetailsScreen>
               } else {
                 return Expanded(
                   child: Container(
+                    margin: EdgeInsets.only(top: 4),
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
@@ -369,7 +373,7 @@ class PokemonDetailsScreenState extends State<PokemonDetailsScreen>
               }
             },
           ),
-        ])));
+        ]));
   }
 
   List<Widget> _getAbilities(PokemonLoaded state, TextStyle textStyle) {
@@ -728,7 +732,7 @@ class PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                                 MaterialPageRoute(
                                     builder: (context) => PokemonDetailsScreen(
                                         stateParse,
-                                        state.pokemon.name,
+                                        stateName,
                                         state.pokemon.type1)),
                               )
                             },
@@ -738,7 +742,7 @@ class PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                           Container(
                             padding: EdgeInsets.only(top: 8),
                             child: Text(
-                              PokemonUtils.toDexNumber(_pokemonId),
+                              PokemonUtils.toDexNumber(stateParse),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   color: PokemonUtils.getColorByType(
@@ -805,7 +809,7 @@ class PokemonDetailsScreenState extends State<PokemonDetailsScreen>
                                                     'https://pokeapi.co/api/v2/pokemon-species/',
                                                     '')
                                                 .replaceAll('/', '')),
-                                            i.data!.pokemonSpecie.data!.name,
+                                            j.data!.pokemonSpecie.data!.name,
                                             state.pokemon.type1)),
                                   )
                                 },

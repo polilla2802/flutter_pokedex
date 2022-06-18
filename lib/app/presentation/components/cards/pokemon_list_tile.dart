@@ -49,7 +49,7 @@ class PokemonListTileState extends State<PokemonListTile> {
   String? _type2;
   late bool _interactive;
   final EdgeInsetsGeometry buttonMargin =
-      const EdgeInsets.only(top: 8, bottom: 8);
+      const EdgeInsets.only(top: 4, bottom: 4);
   bool _selectable = false;
   bool _selected = false;
   late Function(int val)? _addPokemon;
@@ -182,8 +182,8 @@ class PokemonListTileState extends State<PokemonListTile> {
                       color: PokemonUtils.getColorByType(
                           PokemonUtils.getTypeEnum(_type1)),
                       borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10))),
+                          topLeft: Radius.circular(15),
+                          topRight: Radius.circular(15))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -206,13 +206,13 @@ class PokemonListTileState extends State<PokemonListTile> {
                 ),
                 Container(
                   padding: const EdgeInsets.only(
-                      top: 3, bottom: 3, right: 3, left: 3),
+                      top: 3, bottom: 5, right: 5, left: 5),
                   decoration: BoxDecoration(
                       color: PokemonUtils.getColorByType(
                           PokemonUtils.getTypeEnum(_type1)),
                       borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10))),
+                          bottomLeft: Radius.circular(15),
+                          bottomRight: Radius.circular(15))),
                   child: Card(
                     margin: const EdgeInsets.all(0),
                     elevation: 0.0,
@@ -223,7 +223,7 @@ class PokemonListTileState extends State<PokemonListTile> {
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
                           color: _selected
-                              ? ConstValues.secondaryColor
+                              ? Colors.grey.shade800
                               : PokemonUtils.getLighterColorByType(
                                   PokemonUtils.getTypeEnum(_type1)),
                           borderRadius: BorderRadius.circular(10)),
@@ -319,8 +319,8 @@ class PokemonListTileState extends State<PokemonListTile> {
                           decoration: BoxDecoration(
                               color: Colors.grey,
                               borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10))),
+                                  topLeft: Radius.circular(15),
+                                  topRight: Radius.circular(15))),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -343,12 +343,12 @@ class PokemonListTileState extends State<PokemonListTile> {
                         ),
                         Container(
                           padding: const EdgeInsets.only(
-                              top: 3, bottom: 3, right: 3, left: 3),
+                              top: 3, bottom: 5, right: 5, left: 5),
                           decoration: BoxDecoration(
                               color: Colors.grey,
                               borderRadius: const BorderRadius.only(
-                                  bottomLeft: Radius.circular(10),
-                                  bottomRight: Radius.circular(10))),
+                                  bottomLeft: Radius.circular(15),
+                                  bottomRight: Radius.circular(15))),
                           child: Card(
                             margin: const EdgeInsets.all(0),
                             elevation: 0.0,
@@ -421,8 +421,8 @@ class PokemonListTileState extends State<PokemonListTile> {
                           decoration: BoxDecoration(
                               color: Colors.grey,
                               borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10))),
+                                  topLeft: Radius.circular(15),
+                                  topRight: Radius.circular(15))),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -445,12 +445,12 @@ class PokemonListTileState extends State<PokemonListTile> {
                         ),
                         Container(
                           padding: const EdgeInsets.only(
-                              top: 3, bottom: 3, right: 3, left: 3),
+                              top: 3, bottom: 5, right: 5, left: 5),
                           decoration: BoxDecoration(
                               color: Colors.grey,
                               borderRadius: const BorderRadius.only(
-                                  bottomLeft: Radius.circular(10),
-                                  bottomRight: Radius.circular(10))),
+                                  bottomLeft: Radius.circular(15),
+                                  bottomRight: Radius.circular(15))),
                           child: Card(
                             margin: const EdgeInsets.all(0),
                             elevation: 0.0,
@@ -536,13 +536,13 @@ class PokemonListTileState extends State<PokemonListTile> {
                               top: 8, right: 16, left: 16),
                           decoration: BoxDecoration(
                               color: _selected
-                                  ? ConstValues.secondaryColor
+                                  ? Colors.grey.shade800
                                   : PokemonUtils.getColorByType(
                                       PokemonUtils.getTypeEnum(
                                           state.pokemon.type1)),
                               borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10))),
+                                  topLeft: Radius.circular(15),
+                                  topRight: Radius.circular(15))),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -565,14 +565,14 @@ class PokemonListTileState extends State<PokemonListTile> {
                         ),
                         Container(
                           padding: const EdgeInsets.only(
-                              top: 3, bottom: 3, right: 3, left: 3),
+                              top: 3, bottom: 5, right: 5, left: 5),
                           decoration: BoxDecoration(
                               color: PokemonUtils.getColorByType(
                                   PokemonUtils.getTypeEnum(
                                       state.pokemon.type1)),
                               borderRadius: const BorderRadius.only(
-                                  bottomLeft: Radius.circular(10),
-                                  bottomRight: Radius.circular(10))),
+                                  bottomLeft: Radius.circular(15),
+                                  bottomRight: Radius.circular(15))),
                           child: Card(
                             margin: const EdgeInsets.all(0),
                             elevation: 0.0,
@@ -583,7 +583,7 @@ class PokemonListTileState extends State<PokemonListTile> {
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               decoration: BoxDecoration(
                                   color: _selected
-                                      ? ConstValues.secondaryColor
+                                      ? Colors.grey.shade800
                                       : PokemonUtils.getLighterColorByType(
                                           PokemonUtils.getTypeEnum(
                                               state.pokemon.type1)),
@@ -689,8 +689,8 @@ class PokemonListTileState extends State<PokemonListTile> {
                           decoration: BoxDecoration(
                               color: Colors.grey,
                               borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10))),
+                                  topLeft: Radius.circular(15),
+                                  topRight: Radius.circular(15))),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -713,12 +713,12 @@ class PokemonListTileState extends State<PokemonListTile> {
                         ),
                         Container(
                           padding: const EdgeInsets.only(
-                              top: 3, bottom: 3, right: 3, left: 3),
+                              top: 3, bottom: 5, right: 5, left: 5),
                           decoration: BoxDecoration(
                               color: Colors.grey,
                               borderRadius: const BorderRadius.only(
-                                  bottomLeft: Radius.circular(10),
-                                  bottomRight: Radius.circular(10))),
+                                  bottomLeft: Radius.circular(15),
+                                  bottomRight: Radius.circular(15))),
                           child: Card(
                             margin: const EdgeInsets.all(0),
                             elevation: 0.0,
@@ -797,8 +797,8 @@ class PokemonListTileState extends State<PokemonListTile> {
                 decoration: BoxDecoration(
                     color: Colors.grey,
                     borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10))),
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15))),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -821,12 +821,12 @@ class PokemonListTileState extends State<PokemonListTile> {
               ),
               Container(
                 padding:
-                    const EdgeInsets.only(top: 3, bottom: 3, right: 3, left: 3),
+                    const EdgeInsets.only(top: 3, bottom: 5, right: 5, left: 5),
                 decoration: BoxDecoration(
                     color: Colors.grey,
                     borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10))),
+                        bottomLeft: Radius.circular(15),
+                        bottomRight: Radius.circular(15))),
                 child: Card(
                   margin: const EdgeInsets.all(0),
                   elevation: 0.0,

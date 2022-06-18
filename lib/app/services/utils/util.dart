@@ -168,7 +168,7 @@ extension PokemonUtils on Pokemon {
       case Type.dragon:
         return Colors.deepPurple.shade500;
       case Type.dark:
-        return Colors.brown.shade900;
+        return Colors.black;
       case Type.fairy:
         return Colors.pink.shade200;
       case Type.unknown:
@@ -216,15 +216,15 @@ extension PokemonUtils on Pokemon {
       case Type.dragon:
         return Colors.deepPurple.shade100;
       case Type.dark:
-        return Colors.white10;
+        return Colors.grey.shade500;
       case Type.fairy:
         return Colors.pink.shade100;
       case Type.unknown:
-        return Colors.white10;
+        return Colors.brown.shade400;
       case Type.shadow:
-        return Colors.white10;
+        return Colors.brown.shade400;
       default:
-        return Colors.white10;
+        return Colors.brown.shade400;
     }
   }
 
